@@ -1,8 +1,8 @@
 package main
 
 import (
-	"baiyi-api/internal/database"
-	"baiyi-api/internal/service/hitokoto"
+	"backend/internal/database"
+	"backend/internal/service/hitokoto"
 	"log"
 	"net/http"
 

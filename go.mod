@@ -1,4 +1,4 @@
-module baiyi-api
+module backend
 
 go 1.26.2
 
