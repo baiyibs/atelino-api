@@ -77,7 +77,7 @@ func Init() error {
 		log.Fatal(err)
 	}
 
-	log.Println("PostgreSQL初始化成功")
+	log.Println("数据库初始化成功")
 	return nil
 }
 
