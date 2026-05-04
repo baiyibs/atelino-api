@@ -28,6 +28,7 @@ func main() {
 
 	// API 组
 	api := router.Group("api")
+
 	api.GET("/hitokoto/:id", hitokoto.GetHitokotoById)
 	api.GET("/hitokoto", hitokoto.GetHitokotoRandom)
 
