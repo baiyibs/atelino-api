@@ -14,7 +14,7 @@ import (
 )
 
 // 插入新的一言
-func InsertHitokoto(ctx *gin.Context) {
+func InsertHitokotoWithContent(ctx *gin.Context) {
 	var request struct {
 		Content string `json:"content" binding:"required"`
 	}

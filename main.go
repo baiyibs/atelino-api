@@ -2,6 +2,7 @@ package main
 
 import (
 	"backend/internal/database"
+	"backend/internal/middleware"
 	"backend/internal/service/hitokoto"
 	"log"
 
@@ -31,10 +32,17 @@ func main() {
 		GroupHitokoto := GroupApi.Group("hitokoto") // 一言
 		{
 			GroupHitokoto.GET("/", hitokoto.GetHitokotoRandom)
+		}
+	}
+	GroupAdmin := router.Group("api")
+	GroupAdmin.Use(middleware.AuthMiddleware(), middleware.AdminRequired())
+	{
+		GroupHitokoto := GroupAdmin.Group("hitokoto") // 一言
+		{
 			GroupHitokoto.GET("/list", hitokoto.GetHitokotoList)
 			GroupHitokoto.GET("/:id", hitokoto.GetHitokotoById)
 
-			GroupHitokoto.POST("/", hitokoto.InsertHitokoto)
+			GroupHitokoto.POST("/", hitokoto.InsertHitokotoWithContent)
 
 			GroupHitokoto.DELETE("/:id", hitokoto.DeleteHitokotoById)
 		}
