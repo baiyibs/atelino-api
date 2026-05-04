@@ -26,11 +26,18 @@ func main() {
 	// 初始化路由
 	router := gin.Default()
 
-	// API 组
-	api := router.Group("api")
+	GroupApi := router.Group("api")
+	{
+		GroupHitokoto := GroupApi.Group("hitokoto") // 一言
+		{
+			GroupHitokoto.GET("/", hitokoto.GetHitokotoRandom)
+			GroupHitokoto.GET("/list", hitokoto.GetHitokotoList)
+			GroupHitokoto.GET("/:id", hitokoto.GetHitokotoById)
 
-	api.GET("/hitokoto/:id", hitokoto.GetHitokotoById)
-	api.GET("/hitokoto", hitokoto.GetHitokotoRandom)
+			GroupHitokoto.POST("/", hitokoto.InsertHitokoto)
 
+			GroupHitokoto.DELETE("/:id", hitokoto.DeleteHitokotoById)
+		}
+	}
 	router.Run()
 }

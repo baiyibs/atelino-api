@@ -1,6 +1,6 @@
 .env
 .air.toml
-*.sql
 
+sql/
 tmp/
 .vscode/
