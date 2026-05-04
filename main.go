@@ -31,6 +31,7 @@ func main() {
 			"message": "pong",
 		})
 	})
-	api.GET("/hitokoto", hitokoto.Hitokoto)
+	api.GET("/hitokoto/:id", hitokoto.GetHitokotoById)
+	api.GET("/hitokoto", hitokoto.GetHitokotoRandom)
 	router.Run()
 }

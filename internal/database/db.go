@@ -40,7 +40,7 @@ func Init() error {
 
 	port := 5432
 	if portStr != "" {
-		if p, err := strconv.Atoi(portStr); err != nil {
+		if p, err := strconv.Atoi(portStr); err == nil {
 			port = p
 		} else {
 			log.Printf("端口号 %q 无效,使用默认端口号 5432", portStr)
@@ -65,7 +65,7 @@ func Init() error {
 	config.MaxConnLifetime = 1 * time.Hour
 	config.MaxConnIdleTime = 30 * time.Minute
 
-	Pool, err := pgxpool.NewWithConfig(context.Background(), config)
+	Pool, err = pgxpool.NewWithConfig(context.Background(), config)
 	if err != nil {
 		return err
 	}
