@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 type loginRequest struct {
@@ -34,14 +34,11 @@ func Login(ctx *gin.Context) {
 	}
 
 	var user model.User
-	sql := `SELECT id, username, password, role FROM users WHERE username = $1`
-	err := database.Pool.QueryRow(ctx.Request.Context(), sql, request.Username).Scan(
-		&user.ID, &user.Username, &user.Password, &user.Role,
-	)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			ctx.JSON(http.StatusUnauthorized, model.Response{
-				Code:    401,
+
+	if err := database.GormDB.Where("username = ?", request.Username).First(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			ctx.JSON(http.StatusNotFound, model.Response{
+				Code:    404,
 				Message: "用户名或密码错误",
 			})
 			return
@@ -83,12 +80,15 @@ func Login(ctx *gin.Context) {
 
 	// 存储刷新令牌
 	expiresAt := time.Now().Add(7 * 24 * time.Hour)
-	updateSQL := `UPDATE users SET refresh_token_hash = $1, refresh_token_expires_at = $2, refresh_token_revoked_at = NULL WHERE id = $3`
-	_, err = database.Pool.Exec(ctx.Request.Context(), updateSQL, refreshHash, expiresAt, user.ID)
-	if err != nil {
+	user.RefreshTokenHash = refreshHash
+	user.RefreshTokenExpiresAt = &expiresAt
+	user.RefreshTokenRevokedAt = nil
+
+	if err := database.GormDB.Model(&user).
+		Select("RefreshTokenHash", "RefreshTokenExpiresAt", "RefreshTokenRevokedAt").Updates(user).Error; err != nil {
 		ctx.JSON(http.StatusInternalServerError, model.Response{
 			Code:    500,
-			Message: "数据库错误",
+			Message: "更新刷新令牌失败",
 		})
 		return
 	}
@@ -116,42 +116,59 @@ func Refresh(ctx *gin.Context) {
 
 	hash := auth.HashRefreshToken(request.RefreshToken)
 
-	var userID, role string
-	var expiresAt time.Time
-	var revokedAt *time.Time
-
-	query := `SELECT id, role, refresh_token_expires_at, refresh_token_revoked_at FROM users WHERE refresh_token_hash = $1`
-	if err := database.Pool.QueryRow(ctx.Request.Context(), query, hash).Scan(&userID, &role, &expiresAt, &revokedAt); err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": "无效的刷新令牌"})
+	var user model.User
+	if err := database.GormDB.Where("refresh_token_hash = ?", hash).First(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			ctx.JSON(http.StatusUnauthorized, model.Response{
+				Code:    401,
+				Message: "无效的刷新令牌",
+			})
 			return
 		}
-		ctx.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "数据库错误"})
+		ctx.JSON(http.StatusInternalServerError, model.Response{
+			Code:    500,
+			Message: "数据库错误",
+		})
 		return
 	}
 
-	if revokedAt != nil || time.Now().After(expiresAt) {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": "刷新令牌已失效"})
+	if user.RefreshTokenRevokedAt != nil || user.RefreshTokenExpiresAt == nil || time.Now().After(*user.RefreshTokenExpiresAt) {
+		ctx.JSON(http.StatusUnauthorized, model.Response{
+			Code:    401,
+			Message: "刷新令牌已失效",
+		})
 		return
 	}
 
-	newAccessToken, err := auth.GenerateAccessToken(userID, role)
+	newAccessToken, err := auth.GenerateAccessToken(user.ID, user.Role)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "生成访问令牌失败"})
+		ctx.JSON(http.StatusInternalServerError, model.Response{
+			Code:    500,
+			Message: "生成访问令牌失败",
+		})
 		return
 	}
 
 	newRawRefresh, newRefreshHash, err := auth.GenerateRefreshToken()
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "生成刷新令牌失败"})
+		ctx.JSON(http.StatusInternalServerError, model.Response{
+			Code:    500,
+			Message: "生成刷新令牌失败",
+		})
 		return
 	}
-	newExpiresAt := time.Now().Add(7 * 24 * time.Hour)
 
-	updateSQL := `UPDATE users SET refresh_token_hash = $1, refresh_token_expires_at = $2, refresh_token_revoked_at = NULL WHERE id = $3`
-	_, err = database.Pool.Exec(ctx.Request.Context(), updateSQL, newRefreshHash, newExpiresAt, userID)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "更新刷新令牌失败"})
+	newExpiresAt := time.Now().Add(7 * 24 * time.Hour)
+	user.RefreshTokenHash = newRefreshHash
+	user.RefreshTokenExpiresAt = &newExpiresAt
+	user.RefreshTokenRevokedAt = nil
+
+	if err := database.GormDB.Model(&user).
+		Select("RefreshTokenHash", "RefreshTokenExpiresAt", "RefreshTokenRevokedAt").Updates(user).Error; err != nil {
+		ctx.JSON(http.StatusInternalServerError, model.Response{
+			Code:    500,
+			Message: "更新刷新令牌失败",
+		})
 		return
 	}
 
@@ -167,26 +184,33 @@ func Refresh(ctx *gin.Context) {
 
 // 吊销 Refresh Token
 func Logout(ctx *gin.Context) {
-	var request refreshRequest
-	if err := ctx.ShouldBindJSON(&request); err != nil {
-		ctx.JSON(http.StatusBadRequest, model.Response{
-			Code:    400,
-			Message: "无效的请求",
+	userID, exists := ctx.Get("user_id")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, model.Response{
+			Code:    401,
+			Message: "未登录",
 		})
 		return
 	}
 
-	hash := auth.HashRefreshToken(request.RefreshToken)
-	updateSQL := `UPDATE users SET refresh_token_revoked_at = NOW() WHERE refresh_token_hash = $1`
-	_, err := database.Pool.Exec(ctx.Request.Context(), updateSQL, hash)
-	if err != nil {
+	var user model.User
+	if err := database.GormDB.Where("id = ?", userID).First(&user).Error; err != nil {
+		ctx.JSON(http.StatusInternalServerError, model.Response{
+			Code:    500,
+			Message: "数据库错误",
+		})
+		return
+	}
+
+	now := time.Now()
+	user.RefreshTokenRevokedAt = &now
+	if err := database.GormDB.Model(&user).Select("RefreshTokenRevokedAt").Updates(user).Error; err != nil {
 		ctx.JSON(http.StatusInternalServerError, model.Response{
 			Code:    500,
 			Message: "登出失败",
 		})
 		return
 	}
-
 	ctx.JSON(http.StatusOK, model.Response{
 		Code:    200,
 		Message: "登出成功",

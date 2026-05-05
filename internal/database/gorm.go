@@ -1,17 +1,18 @@
 package database
 
 import (
-	"context"
+	"backend/internal/model"
 	"fmt"
 	"log"
 	"os"
 	"strconv"
 	"time"
 
-	"github.com/jackc/pgx/v5/pgxpool"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-var Pool *pgxpool.Pool
+var GormDB *gorm.DB
 
 type DbConfig struct {
 	Username string
@@ -31,7 +32,7 @@ func (cfg DbConfig) BuildUrl() string {
 		cfg.Username, cfg.Password, cfg.Host, port, cfg.DBName)
 }
 
-func Init() error {
+func InitGorm() error {
 	host := os.Getenv("DB_HOST")
 	portStr := os.Getenv("DB_PORT")
 	username := os.Getenv("DB_USER")
@@ -54,35 +55,30 @@ func Init() error {
 		Port:     port,
 		DBName:   dbName,
 	}
+
+	var err error
 	url := dbConfig.BuildUrl()
-	config, err := pgxpool.ParseConfig(url)
+	GormDB, err = gorm.Open(postgres.Open(url), &gorm.Config{})
 	if err != nil {
 		return err
 	}
 
-	config.MaxConns = 10 // 最大连接数
-	config.MinConns = 2  // 最小空闲连接数
-	config.MaxConnLifetime = 1 * time.Hour
-	config.MaxConnIdleTime = 30 * time.Minute
+	sqlDB, _ := GormDB.DB()
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxOpenConns(100)
+	sqlDB.SetConnMaxLifetime(time.Hour)
 
-	Pool, err = pgxpool.NewWithConfig(context.Background(), config)
-	if err != nil {
+	// 自动迁移
+	if err := GormDB.AutoMigrate(&model.Hitokoto{}, &model.User{}); err != nil {
 		return err
 	}
-
-	// 测试连通性
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	if err := Pool.Ping(ctx); err != nil {
-		return err
-	}
-
 	log.Println("数据库初始化成功")
 	return nil
 }
 
-func Close() {
-	if Pool != nil {
-		Pool.Close()
+func CloseGorm() {
+	if GormDB != nil {
+		sqlDB, _ := GormDB.DB()
+		sqlDB.Close()
 	}
 }

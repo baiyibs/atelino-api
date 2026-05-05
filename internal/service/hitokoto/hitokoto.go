@@ -8,8 +8,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgconn"
+	"gorm.io/gorm"
 )
 
 type hitokotoRequest struct {
@@ -37,15 +36,12 @@ func InsertHitokotoWithContent(ctx *gin.Context) {
 		return
 	}
 
-	sql := `INSERT INTO hitokoto (content) VALUES ($1) RETURNING id`
-	var newID int
-	if err := database.Pool.QueryRow(ctx.Request.Context(), sql, request.Content).Scan(&newID); err != nil {
-		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) && pgErr.Code == "23505" { // 23505 唯一冲突码
-			ctx.JSON(http.StatusConflict, model.Response{
-				Code:    409,
-				Message: "该一言已存在",
-			})
+	hitokoto := model.Hitokoto{
+		Content: request.Content,
+	}
+	if err := database.GormDB.Create(&hitokoto).Error; err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			ctx.JSON(http.StatusConflict, model.Response{Code: 409, Message: "该一言已存在"})
 			return
 		}
 		ctx.JSON(http.StatusInternalServerError, model.Response{
@@ -55,10 +51,6 @@ func InsertHitokotoWithContent(ctx *gin.Context) {
 		return
 	}
 
-	hitokoto := model.Hitokoto{
-		Id:      newID,
-		Content: request.Content,
-	}
 	ctx.JSON(http.StatusOK, model.Response{
 		Code:    200,
 		Message: "添加成功",
@@ -77,20 +69,18 @@ func DeleteHitokotoById(ctx *gin.Context) {
 		return
 	}
 
-	sql := `DELETE FROM hitokoto WHERE id = $1`
-	cmdTag, err := database.Pool.Exec(ctx.Request.Context(), sql, request.ID)
-	if err != nil {
+	result := database.GormDB.Where("id = ?", request.ID).Delete(&model.Hitokoto{})
+	if result.Error != nil {
 		ctx.JSON(http.StatusInternalServerError, model.Response{
 			Code:    500,
 			Message: "数据库错误",
 		})
 		return
 	}
-
-	if cmdTag.RowsAffected() == 0 {
+	if result.RowsAffected == 0 {
 		ctx.JSON(http.StatusNotFound, model.Response{
 			Code:    404,
-			Message: "没有找到要删除的一言",
+			Message: "没有找到对应的一言",
 		})
 		return
 	}
@@ -103,35 +93,13 @@ func DeleteHitokotoById(ctx *gin.Context) {
 
 // 获取一言列表
 func GetHitokotoList(ctx *gin.Context) {
-	sql := `SELECT id, content FROM hitokoto ORDER BY id ASC`
-	rows, err := database.Pool.Query(ctx.Request.Context(), sql)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, model.Response{
-			Code:    500,
-			Message: "数据库错误",
-		})
-		return
-	}
-	defer rows.Close()
-
 	var list []model.Hitokoto
-	for rows.Next() {
-		var row model.Hitokoto
-		if err := rows.Scan(&row.Id, &row.Content); err != nil {
-			ctx.JSON(http.StatusInternalServerError, model.Response{
-				Code:    500,
-				Message: "数据库错误",
-			})
-			return
-		}
-		list = append(list, row)
-	}
-	if err := rows.Err(); err != nil {
+
+	if err := database.GormDB.Or("id asc").Find(&list).Error; err != nil {
 		ctx.JSON(http.StatusInternalServerError, model.Response{
 			Code:    500,
 			Message: "数据库错误",
 		})
-		return
 	}
 
 	ctx.JSON(http.StatusOK, model.Response{
@@ -153,12 +121,11 @@ func GetHitokotoById(ctx *gin.Context) {
 	}
 
 	var hitokoto model.Hitokoto
-	sql := `SELECT id, content FROM hitokoto WHERE id = $1`
-	if err := database.Pool.QueryRow(ctx.Request.Context(), sql, request.ID).Scan(&hitokoto.Id, &hitokoto.Content); err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
+	if err := database.GormDB.Where("id = ?", request.ID).First(&hitokoto).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			ctx.JSON(http.StatusNotFound, model.Response{
 				Code:    404,
-				Message: "没有找到对应的内容",
+				Message: "没有找到对应的一言",
 			})
 			return
 		}
@@ -179,12 +146,12 @@ func GetHitokotoById(ctx *gin.Context) {
 // 通过数据库返回一条随机一言
 func GetHitokotoRandom(ctx *gin.Context) {
 	var hitokoto model.Hitokoto
-	sql := `SELECT id, content FROM hitokoto ORDER BY RANDOM() LIMIT 1;`
-	if err := database.Pool.QueryRow(ctx.Request.Context(), sql).Scan(&hitokoto.Id, &hitokoto.Content); err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
+
+	if err := database.GormDB.Order("RANDOM()").Limit(1).First(&hitokoto).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			ctx.JSON(http.StatusNotFound, model.Response{
 				Code:    404,
-				Message: "没有找到对应的内容",
+				Message: "没有找到对应的一言",
 			})
 			return
 		}

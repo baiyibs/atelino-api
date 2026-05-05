@@ -1,7 +1,10 @@
 package model
 
+import "time"
+
 // 一言
 type Hitokoto struct {
-	Id      int    `json:"id"`
-	Content string `json:"content"`
+	ID        int       `gorm:"primaryKey;autoIncrement" json:"id"`
+	Content   string    `gorm:"not null;uniqueIndex" json:"content"`
+	CreatedAt time.Time `json:"created_at"`
 }
