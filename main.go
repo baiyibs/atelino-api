@@ -1,8 +1,8 @@
 package main
 
 import (
+	"backend/internal/auth"
 	"backend/internal/database"
-	"backend/internal/dev"
 	"backend/internal/middleware"
 	"backend/internal/service/hitokoto"
 	"log"
@@ -18,15 +18,14 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	// 初始化JWT
+	auth.InitJWT()
 
 	// 初始化数据库
 	if err := database.Init(); err != nil {
 		log.Fatalf("数据库初始化失败: %v", err)
 	}
 	defer database.Close()
-
-	// 生成测试用户
-	dev.GenerateTestTokens()
 
 	// 初始化路由
 	router := gin.Default()

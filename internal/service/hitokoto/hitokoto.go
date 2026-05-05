@@ -126,6 +126,14 @@ func GetHitokotoList(ctx *gin.Context) {
 		}
 		list = append(list, row)
 	}
+	if err := rows.Err(); err != nil {
+		ctx.JSON(http.StatusInternalServerError, model.Response{
+			Code:    500,
+			Message: "数据库错误",
+		})
+		return
+	}
+
 	ctx.JSON(http.StatusOK, model.Response{
 		Code:    200,
 		Message: "请求成功",
