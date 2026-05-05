@@ -6,12 +6,15 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 )
+
+type hitokotoRequest struct {
+	ID int `json:"id" binding:"required"`
+}
 
 // 插入新的一言
 func InsertHitokotoWithContent(ctx *gin.Context) {
@@ -65,18 +68,17 @@ func InsertHitokotoWithContent(ctx *gin.Context) {
 
 // 通过ID删除一条一言
 func DeleteHitokotoById(ctx *gin.Context) {
-	idStr := ctx.Param("id")
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
+	var request hitokotoRequest
+	if err := ctx.ShouldBindJSON(&request); err != nil {
 		ctx.JSON(http.StatusBadRequest, model.Response{
 			Code:    400,
-			Message: "无效的一言id",
+			Message: "无效的请求",
 		})
 		return
 	}
 
 	sql := `DELETE FROM hitokoto WHERE id = $1`
-	cmdTag, err := database.Pool.Exec(ctx.Request.Context(), sql, id)
+	cmdTag, err := database.Pool.Exec(ctx.Request.Context(), sql, request.ID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, model.Response{
 			Code:    500,
@@ -133,19 +135,18 @@ func GetHitokotoList(ctx *gin.Context) {
 
 // 通过ID返回一条指定的一言
 func GetHitokotoById(ctx *gin.Context) {
-	idStr := ctx.Param("id")
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
+	var request hitokotoRequest
+	if err := ctx.ShouldBindJSON(&request); err != nil {
 		ctx.JSON(http.StatusBadRequest, model.Response{
 			Code:    400,
-			Message: "无效的一言id",
+			Message: "无效的请求",
 		})
 		return
 	}
 
 	var hitokoto model.Hitokoto
 	sql := `SELECT id, content FROM hitokoto WHERE id = $1`
-	if err := database.Pool.QueryRow(ctx.Request.Context(), sql, id).Scan(&hitokoto.Id, &hitokoto.Content); err != nil {
+	if err := database.Pool.QueryRow(ctx.Request.Context(), sql, request.ID).Scan(&hitokoto.Id, &hitokoto.Content); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			ctx.JSON(http.StatusNotFound, model.Response{
 				Code:    404,

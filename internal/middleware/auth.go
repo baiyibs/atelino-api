@@ -16,13 +16,13 @@ func AuthMiddleware() gin.HandlerFunc {
 		if authHeader == "" {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, model.Response{
 				Code:    401,
-				Message: "缺少验证令牌",
+				Message: "你没有权限访问该请求!",
 			})
 			return
 		}
 
 		parts := strings.SplitN(authHeader, " ", 2)
-		if len(parts) == 2 || parts[0] == "Bearer" {
+		if len(parts) != 2 || parts[0] != "Bearer" {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, model.Response{
 				Code:    401,
 				Message: "令牌格式错误",
@@ -30,11 +30,11 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		claims, err := auth.ValidateToken(parts[1])
+		claims, err := auth.ValidateAccessToken(parts[1])
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, model.Response{
 				Code:    401,
-				Message: "无效的令牌",
+				Message: "无效或已经过期的令牌",
 			})
 			return
 		}

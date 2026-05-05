@@ -2,6 +2,7 @@ package main
 
 import (
 	"backend/internal/database"
+	"backend/internal/dev"
 	"backend/internal/middleware"
 	"backend/internal/service/hitokoto"
 	"log"
@@ -24,6 +25,9 @@ func main() {
 	}
 	defer database.Close()
 
+	// 生成测试用户
+	dev.GenerateTestTokens()
+
 	// 初始化路由
 	router := gin.Default()
 
@@ -31,7 +35,7 @@ func main() {
 	{
 		GroupHitokoto := GroupApi.Group("hitokoto") // 一言
 		{
-			GroupHitokoto.GET("/", hitokoto.GetHitokotoRandom)
+			GroupHitokoto.POST("/", hitokoto.GetHitokotoRandom)
 		}
 	}
 	GroupAdmin := router.Group("api")
@@ -39,12 +43,12 @@ func main() {
 	{
 		GroupHitokoto := GroupAdmin.Group("hitokoto") // 一言
 		{
-			GroupHitokoto.GET("/list", hitokoto.GetHitokotoList)
-			GroupHitokoto.GET("/:id", hitokoto.GetHitokotoById)
+			GroupHitokoto.POST("/getHitokotoList", hitokoto.GetHitokotoList)
+			GroupHitokoto.POST("/getHitokotoById", hitokoto.GetHitokotoById)
 
-			GroupHitokoto.POST("/", hitokoto.InsertHitokotoWithContent)
+			GroupHitokoto.POST("/insertHitokotoWithContent", hitokoto.InsertHitokotoWithContent)
 
-			GroupHitokoto.DELETE("/:id", hitokoto.DeleteHitokotoById)
+			GroupHitokoto.POST("/deleteHitokotoById", hitokoto.DeleteHitokotoById)
 		}
 	}
 	router.Run()
