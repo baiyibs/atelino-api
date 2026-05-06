@@ -23,7 +23,8 @@ func main() {
 	// 初始化环境变量
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		log.Println("没有找到.env文件,将使用环境变量")
 	}
 
 	// 初始化 JWT
