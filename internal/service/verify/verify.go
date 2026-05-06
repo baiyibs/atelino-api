@@ -53,6 +53,16 @@ func SendVerificationCode(ctx *gin.Context) {
 		return
 	}
 
+	// 存储验证码
+	codeKey := "verify:code:" + request.To
+	if err := database.RedisClient.Set(ctx.Request.Context(), codeKey, code, 5*time.Minute).Err(); err != nil {
+		ctx.JSON(http.StatusInternalServerError, model.Response{
+			Code:    500,
+			Message: "数据库错误",
+		})
+		return
+	}
+
 	// 发送验证码
 	if err := email.SendVerificationCode(request.To, code); err != nil {
 		database.RedisClient.Del(ctx.Request.Context(), cooldownKey)
@@ -61,16 +71,6 @@ func SendVerificationCode(ctx *gin.Context) {
 			Message: "邮件发送失败，请稍后再试。",
 		})
 		log.Printf("发送邮件失败: %v", err)
-		return
-	}
-
-	// 存储验证码
-	codeKey := "verify:code:" + request.To
-	if err := database.RedisClient.Set(ctx.Request.Context(), codeKey, code, 5*time.Minute).Err(); err != nil {
-		ctx.JSON(http.StatusInternalServerError, model.Response{
-			Code:    500,
-			Message: "数据库错误",
-		})
 		return
 	}
 

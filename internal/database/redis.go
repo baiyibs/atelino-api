@@ -1,16 +1,18 @@
 package database
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 )
 
 var RedisClient *redis.Client
 
-func InitRedis() {
+func InitRedis() error {
 	host := os.Getenv("REDIS_HOST")
 	portStr := os.Getenv("REDIS_PORT")
 	password := os.Getenv("REDIS_PASSWORD")
@@ -23,7 +25,16 @@ func InitRedis() {
 		PoolSize:     20,
 		MinIdleConns: 5,
 	})
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	if err := RedisClient.Ping(ctx).Err(); err != nil {
+		return err
+	}
+
 	log.Println("Redis 初始化成功")
+	return nil
 }
 
 func CloseRedis() {

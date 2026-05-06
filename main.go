@@ -36,7 +36,9 @@ func main() {
 	defer database.CloseGorm()
 
 	// 初始化 Redis
-	database.InitRedis()
+	if err := database.InitRedis(); err != nil {
+		log.Fatalf("Redis 初始化失败: %v", err)
+	}
 	defer database.CloseRedis()
 
 	// 初始化邮箱配置
@@ -67,7 +69,7 @@ func main() {
 	GroupAuth := router.Group("api")
 	GroupAuth.Use(middleware.AuthMiddleware())
 	{
-		GroupApi.POST("/logout", user.LogoutTask)
+		GroupAuth.POST("/logout", user.LogoutTask)
 	}
 
 	// 需要管理员权限才能访问的接口
