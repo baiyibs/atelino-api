@@ -7,6 +7,7 @@ import (
 	"errors"
 	"log"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -31,10 +32,10 @@ type AccessClaims struct {
 }
 
 // 生成 Access Token (访问令牌)
-func GenerateAccessToken(userID, role string) (string, error) {
+func GenerateAccessToken(userID uint, role string) (string, error) {
 	exp := time.Now().Add(15 * time.Minute) // 24小时有效期
 	claims := AccessClaims{
-		UserID: userID,
+		UserID: strconv.FormatUint(uint64(userID), 10),
 		Role:   role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(exp),

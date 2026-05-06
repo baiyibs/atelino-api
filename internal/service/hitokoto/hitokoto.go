@@ -64,7 +64,7 @@ func DeleteHitokotoById(ctx *gin.Context) {
 	if err := ctx.ShouldBindJSON(&request); err != nil {
 		ctx.JSON(http.StatusBadRequest, model.Response{
 			Code:    400,
-			Message: "无效的请求",
+			Message: fmt.Sprintf("请求错误: %s", err.Error()),
 		})
 		return
 	}

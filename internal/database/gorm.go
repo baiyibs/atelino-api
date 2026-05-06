@@ -72,7 +72,11 @@ func InitGorm() error {
 	if err := GormDB.AutoMigrate(&model.Hitokoto{}, &model.User{}); err != nil {
 		return err
 	}
-	log.Println("数据库初始化成功")
+	sql := "SELECT setval('users_id_seq', (SELECT COALESCE(MAX(id), 99999) FROM users));"
+	if err := GormDB.Exec(sql).Error; err != nil {
+		return fmt.Errorf("设置序列起始值失败: %v", err)
+	}
+	log.Println("Gorm 初始化成功")
 	return nil
 }
 

@@ -6,7 +6,9 @@ import (
 	"backend/internal/middleware"
 	"backend/internal/service/hitokoto"
 	"backend/internal/service/user"
+	"backend/internal/service/verify"
 	"backend/internal/utils"
+	"backend/internal/utils/email"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -24,14 +26,21 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// 初始化JWT
+	// 初始化 JWT
 	auth.InitJWT()
 
-	// 初始化数据库
+	// 初始化 Gorm
 	if err := database.InitGorm(); err != nil {
-		log.Fatalf("数据库初始化失败: %v", err)
+		log.Fatalf("Gorm 初始化失败: %v", err)
 	}
 	defer database.CloseGorm()
+
+	// 初始化 Redis
+	database.InitRedis()
+	defer database.CloseRedis()
+
+	// 初始化邮箱配置
+	email.InitStmpService()
 
 	// 初始化路由
 	router := gin.Default()
@@ -39,8 +48,14 @@ func main() {
 	// 不需要权限验证的接口
 	GroupApi := router.Group("api")
 	{
-		GroupApi.POST("/login", user.Login)
-		GroupApi.POST("/refresh", user.Refresh)
+		GroupApi.POST("/login", user.LoginTask)
+		GroupApi.POST("/refresh", user.RefreshTask)
+		GroupApi.POST("/register", user.RegisterTask)
+
+		GroupVerify := GroupApi.Group("verify") // 验证
+		{
+			GroupVerify.POST("/SendVerificationCode", verify.SendVerificationCode)
+		}
 
 		GroupHitokoto := GroupApi.Group("hitokoto") // 一言
 		{
@@ -52,7 +67,7 @@ func main() {
 	GroupAuth := router.Group("api")
 	GroupAuth.Use(middleware.AuthMiddleware())
 	{
-		GroupApi.POST("/logout", user.Logout)
+		GroupApi.POST("/logout", user.LogoutTask)
 	}
 
 	// 需要管理员权限才能访问的接口
