@@ -5,6 +5,7 @@ import (
 	"backend/internal/model"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -95,11 +96,13 @@ func DeleteHitokotoById(ctx *gin.Context) {
 func GetHitokotoList(ctx *gin.Context) {
 	var list []model.Hitokoto
 
-	if err := database.GormDB.Or("id asc").Find(&list).Error; err != nil {
+	if err := database.GormDB.Debug().Order("id asc").Find(&list).Error; err != nil {
 		ctx.JSON(http.StatusInternalServerError, model.Response{
 			Code:    500,
 			Message: "数据库错误",
 		})
+		log.Printf("获取一言列表失败: %v", err)
+		return
 	}
 
 	ctx.JSON(http.StatusOK, model.Response{
