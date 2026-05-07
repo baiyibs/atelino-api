@@ -45,7 +45,7 @@ func main() {
 	defer database.CloseRedis()
 
 	// 初始化邮箱配置
-	email.InitStmpService()
+	email.InitSmtpService()
 
 	// 初始化 Cron 调度器
 	cron.InitScheduler()

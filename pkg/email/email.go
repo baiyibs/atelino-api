@@ -21,7 +21,7 @@ type smtpConfig struct {
 
 var cfg *smtpConfig
 
-func InitStmpService() {
+func InitSmtpService() {
 	host := os.Getenv("SMTP_HOST")
 	portStr := os.Getenv("SMTP_PORT")
 	username := os.Getenv("SMTP_USER")

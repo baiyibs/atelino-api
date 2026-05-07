@@ -22,7 +22,7 @@ var globalScheduler *gocron.Scheduler
 // InitScheduler 初始化 Cron 调度器
 func InitScheduler() {
 	globalScheduler = gocron.NewScheduler(time.Local)
-	log.Println("初始化 Cron 调度器成功")
+	log.Println("Cron 调度器初始化成功")
 }
 
 // StartScheduler 启动 Cron 调度器
@@ -84,6 +84,6 @@ func (b *TaskBuilder) Do(task func()) {
 		}
 	}
 	if err != nil {
-		log.Fatalf("注册任务 [%s] 失败: %w", b.name, err)
+		log.Fatalf("注册任务 [%s] 失败: %v", b.name, err)
 	}
 }
