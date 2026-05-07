@@ -13,10 +13,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type hitokotoRequest struct {
-	ID int `json:"id" binding:"required"`
-}
-
 // InsertHitokotoWithContent 插入新的一言
 func InsertHitokotoWithContent(ctx *gin.Context) {
 	var request struct {
