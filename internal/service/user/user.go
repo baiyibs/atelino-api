@@ -5,6 +5,7 @@ import (
 	"backend/internal/database"
 	"backend/internal/model"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -14,6 +15,11 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+)
+
+var (
+	ErrInvalidToken = errors.New("无效的刷新令牌")
+	ErrTokenExpired = errors.New("刷新令牌已失效")
 )
 
 // 注册请求
@@ -172,13 +178,13 @@ func LoginTask(ctx *gin.Context) {
 	}
 
 	// 存储刷新令牌
-	expiresAt := time.Now().Add(7 * 24 * time.Hour)
-	user.RefreshTokenHash = refreshHash
-	user.RefreshTokenExpiresAt = &expiresAt
-	user.RefreshTokenRevokedAt = nil
+	refreshToken := model.RefreshToken{
+		UserID:    user.ID,
+		TokenHash: refreshHash,
+		ExpiresAt: time.Now().Add(7 * 24 * time.Hour),
+	}
 
-	if err := database.GormDB.Model(&user).
-		Select("RefreshTokenHash", "RefreshTokenExpiresAt", "RefreshTokenRevokedAt").Updates(user).Error; err != nil {
+	if err := database.GormDB.Create(&refreshToken).Error; err != nil {
 		ctx.JSON(http.StatusInternalServerError, model.Response{
 			Code:    500,
 			Message: "更新刷新令牌失败",
@@ -211,92 +217,80 @@ func RefreshTask(ctx *gin.Context) {
 
 	hash := auth.HashRefreshToken(request.RefreshToken)
 
-	// 开启事务
-	tx := database.GormDB.Begin()
-	if tx.Error != nil {
-		ctx.JSON(http.StatusInternalServerError, model.Response{
-			Code:    500,
-			Message: "数据库错误",
-		})
-		return
-	}
-	// 事务异常时回滚
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
+	var newAccessToken string
+	var newRawRefresh string
 
-	var user model.User
-	if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
-		Where("refresh_token_hash = ?", hash).
-		First(&user).Error; err != nil {
-		tx.Rollback()
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+	err := database.GormDB.Transaction(func(tx *gorm.DB) error {
+		var oldToken model.RefreshToken
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
+			Where("token_hash = ?", hash).
+			First(&oldToken).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return ErrTokenExpired
+			}
+			return err
+		}
+
+		if oldToken.RevokedAt != nil || time.Now().After(oldToken.ExpiresAt) {
+			return ErrTokenExpired
+		}
+
+		var user model.User
+		if err := tx.First(&user, oldToken.UserID).Error; err != nil {
+			return fmt.Errorf("查询用户失败: %w", err)
+		}
+
+		accessToken, err := auth.GenerateAccessToken(user.ID, user.Role)
+		if err != nil {
+			return fmt.Errorf("生成访问令牌失败: %w", err)
+		}
+		newAccessToken = accessToken
+
+		rawRefresh, newHash, err := auth.GenerateRefreshToken()
+		if err != nil {
+			return fmt.Errorf("生成刷新令牌失败: %w", err)
+		}
+		newRawRefresh = rawRefresh
+
+		now := time.Now()
+		oldToken.RevokedAt = &now
+		if err := tx.Save(&oldToken).Error; err != nil {
+			return fmt.Errorf("吊销令牌失败: %w", err)
+		}
+
+		newToken := model.RefreshToken{
+			UserID:    oldToken.ID,
+			TokenHash: newHash,
+			ExpiresAt: time.Now().Add(7 * 24 * time.Hour),
+		}
+
+		if err := tx.Create(&newToken).Error; err != nil {
+			return fmt.Errorf("存储新令牌失败: %w", err)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		if errors.Is(err, ErrInvalidToken) {
 			ctx.JSON(http.StatusUnauthorized, model.Response{
 				Code:    401,
-				Message: "无效的刷新令牌",
+				Message: err.Error(),
+			})
+			return
+		}
+		if errors.Is(err, ErrTokenExpired) {
+			ctx.JSON(http.StatusUnauthorized, model.Response{
+				Code:    401,
+				Message: err.Error(),
 			})
 			return
 		}
 		ctx.JSON(http.StatusInternalServerError, model.Response{
 			Code:    500,
-			Message: "数据库错误",
+			Message: "服务器内部错误",
 		})
-		return
-	}
-
-	if user.RefreshTokenRevokedAt != nil || user.RefreshTokenExpiresAt == nil || time.Now().After(*user.RefreshTokenExpiresAt) {
-		tx.Rollback()
-		ctx.JSON(http.StatusUnauthorized, model.Response{
-			Code:    401,
-			Message: "刷新令牌已失效",
-		})
-		return
-	}
-
-	newAccessToken, err := auth.GenerateAccessToken(user.ID, user.Role)
-	if err != nil {
-		tx.Rollback()
-		ctx.JSON(http.StatusInternalServerError, model.Response{
-			Code:    500,
-			Message: "生成访问令牌失败",
-		})
-		return
-	}
-
-	newRawRefresh, newRefreshHash, err := auth.GenerateRefreshToken()
-	if err != nil {
-		tx.Rollback()
-		ctx.JSON(http.StatusInternalServerError, model.Response{
-			Code:    500,
-			Message: "生成刷新令牌失败",
-		})
-		return
-	}
-
-	newExpiresAt := time.Now().Add(7 * 24 * time.Hour)
-	updateData := map[string]interface{}{
-		"refresh_token_hash":       newRefreshHash,
-		"refresh_token_expires_at": newExpiresAt,
-		"refresh_token_revoked_at": nil,
-	}
-
-	if err := tx.Model(&user).Updates(updateData).Error; err != nil {
-		tx.Rollback()
-		ctx.JSON(http.StatusInternalServerError, model.Response{
-			Code:    500,
-			Message: "更新刷新令牌失败",
-		})
-		return
-	}
-
-	// 提交事务
-	if err := tx.Commit().Error; err != nil {
-		ctx.JSON(http.StatusInternalServerError, model.Response{
-			Code:    500,
-			Message: "数据库错误",
-		})
+		log.Printf("刷新令牌事务失败: %v", err)
 		return
 	}
 
@@ -321,24 +315,35 @@ func LogoutTask(ctx *gin.Context) {
 		return
 	}
 
-	var user model.User
-	if err := database.GormDB.Where("id = ?", userID).First(&user).Error; err != nil {
-		ctx.JSON(http.StatusInternalServerError, model.Response{
-			Code:    500,
-			Message: "数据库错误",
-		})
-		return
-	}
+	err := database.GormDB.Transaction(func(tx *gorm.DB) error {
+		var tokens []model.RefreshToken
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
+			Where("user_id = ? AND revoked_at IS NULL", userID).
+			Find(&tokens).Error; err != nil {
+			return err
+		}
 
-	now := time.Now()
-	user.RefreshTokenRevokedAt = &now
-	if err := database.GormDB.Model(&user).Select("RefreshTokenRevokedAt").Updates(user).Error; err != nil {
+		if len(tokens) > 0 {
+			now := time.Now()
+			for i := range tokens {
+				tokens[i].RevokedAt = &now
+			}
+			if err := tx.Save(&tokens).Error; err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+
+	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, model.Response{
 			Code:    500,
 			Message: "登出失败",
 		})
 		return
 	}
+
 	ctx.JSON(http.StatusOK, model.Response{
 		Code:    200,
 		Message: "登出成功",

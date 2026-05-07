@@ -69,7 +69,7 @@ func InitGorm() error {
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
 	// 自动迁移
-	if err := GormDB.AutoMigrate(&model.Hitokoto{}, &model.User{}); err != nil {
+	if err := GormDB.AutoMigrate(&model.Hitokoto{}, &model.User{}, &model.RefreshToken{}); err != nil {
 		return err
 	}
 	sql := "SELECT setval('users_id_seq', (SELECT COALESCE(MAX(id), 99999) FROM users));"

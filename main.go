@@ -51,10 +51,6 @@ func main() {
 	// 不需要权限验证的接口
 	GroupApi := router.Group("api")
 	{
-		GroupApi.POST("/login", user.LoginTask)
-		GroupApi.POST("/refresh", user.RefreshTask)
-		GroupApi.POST("/register", user.RegisterTask)
-
 		GroupVerify := GroupApi.Group("verify") // 验证
 		{
 			GroupVerify.POST("/SendVerificationCode", verify.SendVerificationCode)
@@ -62,15 +58,20 @@ func main() {
 
 		GroupHitokoto := GroupApi.Group("hitokoto") // 一言
 		{
-			GroupHitokoto.POST("/", hitokoto.GetHitokotoRandom)
+			GroupHitokoto.POST("", hitokoto.GetHitokotoRandom)
 		}
 	}
 
-	// 需要权限验证的接口
-	GroupAuth := router.Group("api")
-	GroupAuth.Use(middleware.AuthMiddleware())
+	GroupAuth := router.Group("auth")
 	{
-		GroupAuth.POST("/logout", user.LogoutTask)
+		GroupAuth.POST("/login", user.LoginTask)
+		GroupAuth.POST("/refresh", user.RefreshTask)
+		GroupAuth.POST("/register", user.RegisterTask)
+	}
+	GroupAuthSecure := GroupAuth.Use(middleware.AuthMiddleware())
+	{
+		// 需要权限验证的接口
+		GroupAuthSecure.POST("/logout", user.LogoutTask)
 	}
 
 	// 需要管理员权限才能访问的接口
