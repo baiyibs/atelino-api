@@ -202,7 +202,7 @@ func LoginTask(ctx *gin.Context) {
 	})
 }
 
-// RefreshTask 使用 RefreshTask Token 刷新 Access Token
+// RefreshTask 使用 Refresh Token 刷新 Access Token
 func RefreshTask(ctx *gin.Context) {
 	var request struct {
 		RefreshToken string `json:"refresh_token" binding:"required"`
@@ -252,8 +252,7 @@ func RefreshTask(ctx *gin.Context) {
 		}
 		newRawRefresh = rawRefresh
 
-		now := time.Now()
-		oldToken.RevokedAt = &now
+		oldToken.RevokedAt = new(time.Now())
 		if err := tx.Save(&oldToken).Error; err != nil {
 			return fmt.Errorf("吊销令牌失败: %w", err)
 		}

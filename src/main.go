@@ -53,13 +53,13 @@ func main() {
 	{
 		GroupHitokoto := GroupApi.Group("hitokoto") // 一言
 		{
-			GroupHitokoto.POST("", hitokoto.GetHitokotoRandom)
+			GroupHitokoto.GET("", hitokoto.GetHitokotoRandom)
 		}
 	}
 
 	GroupVerify := router.Group("verify")
 	{
-		GroupVerify.POST("/SendVerificationCode", verify.SendVerificationCode)
+		GroupVerify.POST("/send", verify.SendVerificationCode)
 	}
 
 	GroupAuth := router.Group("auth")
@@ -80,12 +80,12 @@ func main() {
 	{
 		GroupHitokoto := GroupAdmin.Group("hitokoto")
 		{
-			GroupHitokoto.POST("/getHitokotoList", hitokoto.GetHitokotoList)
-			GroupHitokoto.POST("/getHitokotoById", hitokoto.GetHitokotoById)
+			GroupHitokoto.GET("/list", hitokoto.GetHitokotoList)
+			GroupHitokoto.GET("/:id", hitokoto.GetHitokotoById)
 
-			GroupHitokoto.POST("/insertHitokotoWithContent", hitokoto.InsertHitokotoWithContent)
+			GroupHitokoto.POST("", hitokoto.InsertHitokotoWithContent)
 
-			GroupHitokoto.POST("/deleteHitokotoById", hitokoto.DeleteHitokotoById)
+			GroupHitokoto.DELETE("/:id", hitokoto.DeleteHitokotoById)
 		}
 	}
 

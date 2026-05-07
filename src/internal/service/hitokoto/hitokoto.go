@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -61,16 +62,24 @@ func InsertHitokotoWithContent(ctx *gin.Context) {
 
 // DeleteHitokotoById 通过ID删除一条一言
 func DeleteHitokotoById(ctx *gin.Context) {
-	var request hitokotoRequest
-	if err := ctx.ShouldBindJSON(&request); err != nil {
+	idStr := ctx.Param("id")
+	if idStr == "" {
 		ctx.JSON(http.StatusBadRequest, model.Response{
 			Code:    400,
-			Message: fmt.Sprintf("请求错误: %s", err.Error()),
+			Message: "无效的请求",
+		})
+		return
+	}
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, model.Response{
+			Code:    400,
+			Message: "无效的请求",
 		})
 		return
 	}
 
-	result := database.GormDB.Where("id = ?", request.ID).Delete(&model.Hitokoto{})
+	result := database.GormDB.Where("id = ?", id).Delete(&model.Hitokoto{})
 	if result.Error != nil {
 		ctx.JSON(http.StatusInternalServerError, model.Response{
 			Code:    500,
@@ -94,9 +103,32 @@ func DeleteHitokotoById(ctx *gin.Context) {
 
 // GetHitokotoList 获取一言列表
 func GetHitokotoList(ctx *gin.Context) {
-	var list []model.Hitokoto
+	pageStr := ctx.DefaultQuery("page", "1")
+	page, err := strconv.Atoi(pageStr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, model.Response{
+			Code:    400,
+			Message: "无效的请求",
+		})
+		return
+	}
 
-	if err := database.GormDB.Debug().Order("id asc").Find(&list).Error; err != nil {
+	const pageSize = 20
+	offset := (page - 1) * pageSize
+
+	var list []model.Hitokoto
+	var total int64
+
+	if err := database.GormDB.Model(&model.Hitokoto{}).Count(&total).Error; err != nil {
+		ctx.JSON(http.StatusInternalServerError, model.Response{
+			Code:    500,
+			Message: "数据库错误",
+		})
+		log.Printf("获取一言列表总数失败: %v", err)
+		return
+	}
+
+	if err := database.GormDB.Order("id asc").Limit(pageSize).Offset(offset).Find(&list).Error; err != nil {
 		ctx.JSON(http.StatusInternalServerError, model.Response{
 			Code:    500,
 			Message: "数据库错误",
@@ -114,8 +146,16 @@ func GetHitokotoList(ctx *gin.Context) {
 
 // GetHitokotoById 通过ID返回一条指定的一言
 func GetHitokotoById(ctx *gin.Context) {
-	var request hitokotoRequest
-	if err := ctx.ShouldBindJSON(&request); err != nil {
+	idStr := ctx.Param("id")
+	if idStr == "" {
+		ctx.JSON(http.StatusBadRequest, model.Response{
+			Code:    400,
+			Message: "无效的请求",
+		})
+		return
+	}
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
 		ctx.JSON(http.StatusBadRequest, model.Response{
 			Code:    400,
 			Message: "无效的请求",
@@ -124,7 +164,7 @@ func GetHitokotoById(ctx *gin.Context) {
 	}
 
 	var hitokoto model.Hitokoto
-	if err := database.GormDB.Where("id = ?", request.ID).First(&hitokoto).Error; err != nil {
+	if err := database.GormDB.Where("id = ?", id).First(&hitokoto).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			ctx.JSON(http.StatusNotFound, model.Response{
 				Code:    404,
