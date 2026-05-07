@@ -146,6 +146,7 @@ func LoginTask(ctx *gin.Context) {
 			Code:    500,
 			Message: "数据库错误",
 		})
+		log.Printf("用户登录时发生错误: %v", err)
 		return
 	}
 
@@ -157,38 +158,65 @@ func LoginTask(ctx *gin.Context) {
 		return
 	}
 
-	// 生成访问令牌
-	accessToken, err := auth.GenerateAccessToken(user.ID, user.Role)
+	const maxUserDevices = 3
+
+	var accessToken string
+	var rawRefresh string
+	var refreshHash string
+
+	err := database.GormDB.Transaction(func(tx *gorm.DB) error {
+		var validTokens []model.RefreshToken
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
+			Where("user_id = ? AND revoked_at IS NULL AND expires_at > ?", user.ID, time.Now()).
+			Order("created_at ASC").
+			Find(&validTokens).Error; err != nil {
+			return fmt.Errorf("查询有效令牌失败: %w", err)
+		}
+
+		// 限制用户令牌数量
+		currentCount := len(validTokens)
+		if currentCount >= maxUserDevices {
+			revokeCount := currentCount - maxUserDevices + 1
+			for i := 0; i < revokeCount && i < currentCount; i++ {
+				validTokens[i].RevokedAt = new(time.Now())
+				if err := tx.Save(&validTokens[i]).Error; err != nil {
+					return fmt.Errorf("吊销旧令牌失败: %w", err)
+				}
+			}
+		}
+
+		var err error
+		// 生成访问令牌
+		accessToken, err = auth.GenerateAccessToken(user.ID, user.Role)
+		if err != nil {
+			return fmt.Errorf("生成访问令牌失败: %w", err)
+		}
+		// 生成刷新令牌
+		rawRefresh, refreshHash, err = auth.GenerateRefreshToken()
+		if err != nil {
+			return fmt.Errorf("生成刷新令牌失败: %w", err)
+		}
+
+		// 存储刷新令牌
+		newToken := model.RefreshToken{
+			UserID:    user.ID,
+			TokenHash: refreshHash,
+			ExpiresAt: time.Now().Add(7 * 24 * time.Hour),
+			CreatedAt: time.Now(),
+		}
+		if err := tx.Create(&newToken).Error; err != nil {
+			return fmt.Errorf("存储新令牌失败: %w", err)
+		}
+
+		return nil
+	})
+
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, model.Response{
 			Code:    500,
-			Message: "生成访问令牌失败",
+			Message: "登录失败，请稍后重试。",
 		})
-		return
-	}
-
-	// 生成刷新令牌
-	rawRefresh, refreshHash, err := auth.GenerateRefreshToken()
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, model.Response{
-			Code:    500,
-			Message: "生成刷新令牌失败",
-		})
-		return
-	}
-
-	// 存储刷新令牌
-	refreshToken := model.RefreshToken{
-		UserID:    user.ID,
-		TokenHash: refreshHash,
-		ExpiresAt: time.Now().Add(7 * 24 * time.Hour),
-	}
-
-	if err := database.GormDB.Create(&refreshToken).Error; err != nil {
-		ctx.JSON(http.StatusInternalServerError, model.Response{
-			Code:    500,
-			Message: "更新刷新令牌失败",
-		})
+		log.Printf("用户登录失败: %v", err)
 		return
 	}
 
@@ -258,7 +286,7 @@ func RefreshTask(ctx *gin.Context) {
 		}
 
 		newToken := model.RefreshToken{
-			UserID:    oldToken.ID,
+			UserID:    oldToken.UserID,
 			TokenHash: newHash,
 			ExpiresAt: time.Now().Add(7 * 24 * time.Hour),
 		}

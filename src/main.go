@@ -8,7 +8,9 @@ import (
 	"backend/src/internal/service/user"
 	"backend/src/internal/service/verify"
 	"backend/src/internal/utils"
+	"backend/src/internal/utils/cron"
 	"backend/src/internal/utils/email"
+	"backend/src/internal/utils/task"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -45,6 +47,13 @@ func main() {
 	// 初始化邮箱配置
 	email.InitStmpService()
 
+	// 初始化 Cron 调度器
+	cron.InitScheduler()
+	// 添加计划任务
+	cron.Register("吊销刷新令牌").Daily(12, 0).Do(task.CleanupRevokedTokens)
+
+	cron.StartScheduler()
+	defer cron.StopScheduler()
 	// 初始化路由
 	router := gin.Default()
 
