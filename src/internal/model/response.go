@@ -1,6 +1,6 @@
 package model
 
-// 通用响应体
+// Response 通用响应体
 type Response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`

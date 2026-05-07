@@ -1,15 +1,15 @@
 package middleware
 
 import (
-	"backend/internal/auth"
-	"backend/internal/model"
+	"backend/src/internal/auth"
+	"backend/src/internal/model"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
-// 验证JWT，提取用户信息
+// AuthMiddleware 验证JWT，提取用户信息
 func AuthMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		authHeader := ctx.GetHeader("Authorization")

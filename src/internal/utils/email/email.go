@@ -47,8 +47,8 @@ func InitStmpService() {
 }
 
 func GenerateVerificationCode() (string, error) {
-	max := big.NewInt(900000)
-	n, err := rand.Int(rand.Reader, max)
+	newInt := big.NewInt(900000)
+	n, err := rand.Int(rand.Reader, newInt)
 	if err != nil {
 		return "", err
 	}

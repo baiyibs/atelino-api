@@ -1,7 +1,7 @@
 package database
 
 import (
-	"backend/internal/model"
+	"backend/src/internal/model"
 	"fmt"
 	"log"
 	"os"
@@ -83,6 +83,9 @@ func InitGorm() error {
 func CloseGorm() {
 	if GormDB != nil {
 		sqlDB, _ := GormDB.DB()
-		sqlDB.Close()
+		err := sqlDB.Close()
+		if err != nil {
+			log.Fatalf("Gorm 关闭失败: %v", err)
+		}
 	}
 }

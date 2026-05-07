@@ -1,9 +1,9 @@
 package user
 
 import (
-	"backend/internal/auth"
-	"backend/internal/database"
-	"backend/internal/model"
+	"backend/src/internal/auth"
+	"backend/src/internal/database"
+	"backend/src/internal/model"
 	"errors"
 	"fmt"
 	"log"
@@ -22,7 +22,7 @@ var (
 	ErrTokenExpired = errors.New("刷新令牌已失效")
 )
 
-// 注册请求
+// RegisterTask 注册请求
 func RegisterTask(ctx *gin.Context) {
 	var request struct {
 		Email    string `json:"email" binding:"required,email"`
@@ -92,7 +92,7 @@ func RegisterTask(ctx *gin.Context) {
 	}
 
 	// 删除验证码
-	database.RedisClient.Del(ctx.Request.Context(), codeKey).Err()
+	database.RedisClient.Del(ctx.Request.Context(), codeKey)
 
 	// 创建用户
 	user := model.User{
@@ -118,7 +118,7 @@ func RegisterTask(ctx *gin.Context) {
 	})
 }
 
-// 登录请求, 返回 access_token 和 refresh_token
+// LoginTask 登录请求, 返回 access_token 和 refresh_token
 func LoginTask(ctx *gin.Context) {
 	var request struct {
 		Email    string `json:"email" binding:"required,email"`
@@ -202,7 +202,7 @@ func LoginTask(ctx *gin.Context) {
 	})
 }
 
-// 使用 RefreshTask Token 刷新 Access Token
+// RefreshTask 使用 RefreshTask Token 刷新 Access Token
 func RefreshTask(ctx *gin.Context) {
 	var request struct {
 		RefreshToken string `json:"refresh_token" binding:"required"`
@@ -304,7 +304,7 @@ func RefreshTask(ctx *gin.Context) {
 	})
 }
 
-// 登出, 吊销该用户的 Refresh Token
+// LogoutTask 登出, 吊销该用户的 Refresh Token
 func LogoutTask(ctx *gin.Context) {
 	userID, exists := ctx.Get("user_id")
 	if !exists {

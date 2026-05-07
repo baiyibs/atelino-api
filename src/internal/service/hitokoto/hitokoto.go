@@ -1,8 +1,8 @@
 package hitokoto
 
 import (
-	"backend/internal/database"
-	"backend/internal/model"
+	"backend/src/internal/database"
+	"backend/src/internal/model"
 	"errors"
 	"fmt"
 	"log"
@@ -16,7 +16,7 @@ type hitokotoRequest struct {
 	ID int `json:"id" binding:"required"`
 }
 
-// 插入新的一言
+// InsertHitokotoWithContent 插入新的一言
 func InsertHitokotoWithContent(ctx *gin.Context) {
 	var request struct {
 		Content string `json:"content" binding:"required"`
@@ -59,7 +59,7 @@ func InsertHitokotoWithContent(ctx *gin.Context) {
 	})
 }
 
-// 通过ID删除一条一言
+// DeleteHitokotoById 通过ID删除一条一言
 func DeleteHitokotoById(ctx *gin.Context) {
 	var request hitokotoRequest
 	if err := ctx.ShouldBindJSON(&request); err != nil {
@@ -92,7 +92,7 @@ func DeleteHitokotoById(ctx *gin.Context) {
 	})
 }
 
-// 获取一言列表
+// GetHitokotoList 获取一言列表
 func GetHitokotoList(ctx *gin.Context) {
 	var list []model.Hitokoto
 
@@ -112,7 +112,7 @@ func GetHitokotoList(ctx *gin.Context) {
 	})
 }
 
-// 通过ID返回一条指定的一言
+// GetHitokotoById 通过ID返回一条指定的一言
 func GetHitokotoById(ctx *gin.Context) {
 	var request hitokotoRequest
 	if err := ctx.ShouldBindJSON(&request); err != nil {
@@ -146,7 +146,7 @@ func GetHitokotoById(ctx *gin.Context) {
 	})
 }
 
-// 通过数据库返回一条随机一言
+// GetHitokotoRandom 通过数据库返回一条随机一言
 func GetHitokotoRandom(ctx *gin.Context) {
 	var hitokoto model.Hitokoto
 

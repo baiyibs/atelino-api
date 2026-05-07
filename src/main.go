@@ -1,14 +1,14 @@
 package main
 
 import (
-	"backend/internal/auth"
-	"backend/internal/database"
-	"backend/internal/middleware"
-	"backend/internal/service/hitokoto"
-	"backend/internal/service/user"
-	"backend/internal/service/verify"
-	"backend/internal/utils"
-	"backend/internal/utils/email"
+	"backend/src/internal/auth"
+	"backend/src/internal/database"
+	"backend/src/internal/middleware"
+	"backend/src/internal/service/hitokoto"
+	"backend/src/internal/service/user"
+	"backend/src/internal/service/verify"
+	"backend/src/internal/utils"
+	"backend/src/internal/utils/email"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -88,5 +88,8 @@ func main() {
 			GroupHitokoto.POST("/deleteHitokotoById", hitokoto.DeleteHitokotoById)
 		}
 	}
-	router.Run()
+
+	if err := router.Run(); err != nil {
+		log.Fatalf("Gin 启动失败: %v", err)
+	}
 }

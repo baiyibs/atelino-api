@@ -39,6 +39,9 @@ func InitRedis() error {
 
 func CloseRedis() {
 	if RedisClient != nil {
-		RedisClient.Close()
+		err := RedisClient.Close()
+		if err != nil {
+			log.Fatalf("Redis 关闭失败: %v", err)
+		}
 	}
 }

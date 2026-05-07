@@ -15,7 +15,7 @@ import (
 
 var jwtKey []byte
 
-// 初始化JWT
+// InitJWT 初始化JWT
 func InitJWT() {
 	secret := os.Getenv("JWT_KEY")
 	if secret == "" {
@@ -24,14 +24,14 @@ func InitJWT() {
 	jwtKey = []byte(secret)
 }
 
-// Access Token 载荷
+// AccessClaims Access Token 载荷
 type AccessClaims struct {
 	UserID string `json:"user_id"`
 	Role   string `json:"role"`
 	jwt.RegisteredClaims
 }
 
-// 生成 Access Token (访问令牌)
+// GenerateAccessToken 生成 Access Token (访问令牌)
 func GenerateAccessToken(userID uint, role string) (string, error) {
 	exp := time.Now().Add(15 * time.Minute) // 24小时有效期
 	claims := AccessClaims{
@@ -45,7 +45,7 @@ func GenerateAccessToken(userID uint, role string) (string, error) {
 	return token.SignedString(jwtKey)
 }
 
-// 验证 Access Token
+// ValidateAccessToken 验证 Access Token
 func ValidateAccessToken(tokenStr string) (*AccessClaims, error) {
 	claims := &AccessClaims{}
 
@@ -59,7 +59,7 @@ func ValidateAccessToken(tokenStr string) (*AccessClaims, error) {
 	return claims, nil
 }
 
-// 生成 Refresh Token (刷新令牌)
+// GenerateRefreshToken 生成 Refresh Token (刷新令牌)
 func GenerateRefreshToken() (rawToken string, hash string, err error) {
 	// 生成随机字节
 	b := make([]byte, 32)
@@ -72,7 +72,7 @@ func GenerateRefreshToken() (rawToken string, hash string, err error) {
 	return rawToken, hash, nil
 }
 
-// 对于前端给定的 Refresh Token 计算 Hash
+// HashRefreshToken 对于前端给定的 Refresh Token 计算 Hash
 func HashRefreshToken(rawToken string) string {
 	sum := sha256.Sum256([]byte(rawToken))
 	return hex.EncodeToString(sum[:])

@@ -1,8 +1,4 @@
-.env
-.air.toml
-dev.go
+/.env
+/.air.toml
 
-sql/
-tmp/
-.vscode/
-.gocache/
+/tmp/
