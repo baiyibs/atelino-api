@@ -51,15 +51,15 @@ func main() {
 	// 不需要权限验证的接口
 	GroupApi := router.Group("api")
 	{
-		GroupVerify := GroupApi.Group("verify") // 验证
-		{
-			GroupVerify.POST("/SendVerificationCode", verify.SendVerificationCode)
-		}
-
 		GroupHitokoto := GroupApi.Group("hitokoto") // 一言
 		{
 			GroupHitokoto.POST("", hitokoto.GetHitokotoRandom)
 		}
+	}
+
+	GroupVerify := router.Group("verify")
+	{
+		GroupVerify.POST("/SendVerificationCode", verify.SendVerificationCode)
 	}
 
 	GroupAuth := router.Group("auth")
