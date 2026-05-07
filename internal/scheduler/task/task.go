@@ -1,8 +1,8 @@
 package task
 
 import (
-	"backend/src/internal/database"
-	"backend/src/internal/model"
+	"backend/internal/database"
+	"backend/internal/model"
 	"log"
 	"time"
 )

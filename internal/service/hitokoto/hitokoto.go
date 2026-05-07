@@ -1,8 +1,8 @@
 package hitokoto
 
 import (
-	"backend/src/internal/database"
-	"backend/src/internal/model"
+	"backend/internal/database"
+	"backend/internal/model"
 	"errors"
 	"fmt"
 	"log"

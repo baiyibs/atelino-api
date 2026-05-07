@@ -55,7 +55,7 @@ func (b *TaskBuilder) Daily(hour, minute uint) *TaskBuilder {
 	return b
 }
 
-// Cron 设置 Cron 表达式（优先级高于 Daily）
+// Cron 设置 Cron 表达式 ( 优先级高于 Daily )
 func (b *TaskBuilder) Cron(spec string) *TaskBuilder {
 	b.spec = spec
 	return b

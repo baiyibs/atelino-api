@@ -1,9 +1,9 @@
 package verify
 
 import (
-	"backend/src/internal/database"
-	"backend/src/internal/model"
-	"backend/src/internal/utils/email"
+	"backend/internal/database"
+	"backend/internal/model"
+	"backend/pkg/email"
 	"log"
 	"net/http"
 	"time"

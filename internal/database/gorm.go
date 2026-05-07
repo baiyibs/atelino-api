@@ -1,7 +1,7 @@
 package database
 
 import (
-	"backend/src/internal/model"
+	model2 "backend/internal/model"
 	"fmt"
 	"log"
 	"os"
@@ -69,7 +69,7 @@ func InitGorm() error {
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
 	// 自动迁移
-	if err := GormDB.AutoMigrate(&model.Hitokoto{}, &model.User{}, &model.RefreshToken{}); err != nil {
+	if err := GormDB.AutoMigrate(&model2.Hitokoto{}, &model2.User{}, &model2.RefreshToken{}); err != nil {
 		return err
 	}
 	sql := "SELECT setval('users_id_seq', (SELECT COALESCE(MAX(id), 99999) FROM users));"

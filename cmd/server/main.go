@@ -1,16 +1,16 @@
 package main
 
 import (
-	"backend/src/internal/auth"
-	"backend/src/internal/database"
-	"backend/src/internal/middleware"
-	"backend/src/internal/service/hitokoto"
-	"backend/src/internal/service/user"
-	"backend/src/internal/service/verify"
-	"backend/src/internal/utils"
-	"backend/src/internal/utils/cron"
-	"backend/src/internal/utils/email"
-	"backend/src/internal/utils/task"
+	"backend/internal/auth"
+	"backend/internal/database"
+	"backend/internal/middleware"
+	"backend/internal/scheduler/cron"
+	"backend/internal/scheduler/task"
+	"backend/internal/service/hitokoto"
+	"backend/internal/service/user"
+	"backend/internal/service/verify"
+	"backend/pkg/email"
+	"backend/pkg/utils"
 	"log"
 
 	"github.com/gin-gonic/gin"

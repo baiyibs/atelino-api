@@ -1,9 +1,9 @@
 package user
 
 import (
-	"backend/src/internal/auth"
-	"backend/src/internal/database"
-	"backend/src/internal/model"
+	"backend/internal/auth"
+	"backend/internal/database"
+	"backend/internal/model"
 	"errors"
 	"fmt"
 	"log"
