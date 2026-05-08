@@ -50,7 +50,7 @@ func main() {
 	// 初始化 Cron 调度器
 	cron.InitScheduler()
 	// 添加计划任务
-	cron.Register("吊销刷新令牌").Daily(12, 0).Do(task.CleanupRevokedTokens)
+	cron.Register("清理无效令牌").Daily(12, 0).Do(task.CleanupInvalidRefreshTokens)
 
 	cron.StartScheduler()
 	defer cron.StopScheduler()

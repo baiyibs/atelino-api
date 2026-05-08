@@ -33,7 +33,7 @@ type AccessClaims struct {
 
 // GenerateAccessToken 生成 Access Token (访问令牌)
 func GenerateAccessToken(userID uint, role string) (string, error) {
-	exp := time.Now().Add(15 * time.Minute) // 24小时有效期
+	exp := time.Now().UTC().Add(15 * time.Minute) // 24小时有效期
 	claims := AccessClaims{
 		UserID: strconv.FormatUint(uint64(userID), 10),
 		Role:   role,

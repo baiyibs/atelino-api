@@ -167,7 +167,7 @@ func LoginTask(ctx *gin.Context) {
 	err := database.GormDB.Transaction(func(tx *gorm.DB) error {
 		var validTokens []model.RefreshToken
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
-			Where("user_id = ? AND revoked_at IS NULL AND expires_at > ?", user.ID, time.Now()).
+			Where("user_id = ? AND revoked_at IS NULL AND expires_at > ?", user.ID, time.Now().UTC()).
 			Order("created_at ASC").
 			Find(&validTokens).Error; err != nil {
 			return fmt.Errorf("查询有效令牌失败: %w", err)
@@ -178,7 +178,7 @@ func LoginTask(ctx *gin.Context) {
 		if currentCount >= maxUserDevices {
 			revokeCount := currentCount - maxUserDevices + 1
 			for i := 0; i < revokeCount && i < currentCount; i++ {
-				validTokens[i].RevokedAt = new(time.Now())
+				validTokens[i].RevokedAt = new(time.Now().UTC())
 				if err := tx.Save(&validTokens[i]).Error; err != nil {
 					return fmt.Errorf("吊销旧令牌失败: %w", err)
 				}
@@ -201,8 +201,8 @@ func LoginTask(ctx *gin.Context) {
 		newToken := model.RefreshToken{
 			UserID:    user.ID,
 			TokenHash: refreshHash,
-			ExpiresAt: time.Now().Add(7 * 24 * time.Hour),
-			CreatedAt: time.Now(),
+			ExpiresAt: time.Now().UTC().Add(7 * 24 * time.Hour),
+			CreatedAt: time.Now().UTC(),
 		}
 		if err := tx.Create(&newToken).Error; err != nil {
 			return fmt.Errorf("存储新令牌失败: %w", err)
@@ -259,7 +259,7 @@ func RefreshTask(ctx *gin.Context) {
 			return err
 		}
 
-		if oldToken.RevokedAt != nil || time.Now().After(oldToken.ExpiresAt) {
+		if oldToken.RevokedAt != nil || time.Now().UTC().After(oldToken.ExpiresAt) {
 			return ErrTokenExpired
 		}
 
@@ -280,7 +280,7 @@ func RefreshTask(ctx *gin.Context) {
 		}
 		newRawRefresh = rawRefresh
 
-		oldToken.RevokedAt = new(time.Now())
+		oldToken.RevokedAt = new(time.Now().UTC())
 		if err := tx.Save(&oldToken).Error; err != nil {
 			return fmt.Errorf("吊销令牌失败: %w", err)
 		}
@@ -288,7 +288,7 @@ func RefreshTask(ctx *gin.Context) {
 		newToken := model.RefreshToken{
 			UserID:    oldToken.UserID,
 			TokenHash: newHash,
-			ExpiresAt: time.Now().Add(7 * 24 * time.Hour),
+			ExpiresAt: time.Now().UTC().Add(7 * 24 * time.Hour),
 		}
 
 		if err := tx.Create(&newToken).Error; err != nil {
@@ -351,7 +351,7 @@ func LogoutTask(ctx *gin.Context) {
 		}
 
 		if len(tokens) > 0 {
-			now := time.Now()
+			now := time.Now().UTC()
 			for i := range tokens {
 				tokens[i].RevokedAt = &now
 			}

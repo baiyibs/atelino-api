@@ -13,7 +13,7 @@ type ginWriter struct {
 }
 
 func (w *ginWriter) Write(p []byte) (n int, err error) {
-	timestamp := time.Now().Format("2006/01/02 - 15:04:05")
+	timestamp := time.Now().UTC().Format("2006/01/02 - 15:04:05")
 	msg := string(p)
 	if len(msg) > 0 && msg[len(msg)-1] == '\n' {
 		msg = msg[:len(msg)-1]

@@ -28,7 +28,7 @@ func (cfg DbConfig) BuildUrl() string {
 		port = 5432
 	}
 	// urlExample := "postgres://username:password@localhost:5432/database_name"
-	return fmt.Sprintf("postgres://%s:%s@%s:%d/%s",
+	return fmt.Sprintf("postgres://%s:%s@%s:%d/%s?timezone=UTC",
 		cfg.Username, cfg.Password, cfg.Host, port, cfg.DBName)
 }
 
