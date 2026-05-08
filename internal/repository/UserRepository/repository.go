@@ -14,7 +14,7 @@ type Interface interface {
 	Create(user *model.User) error
 }
 
-type RefreshTokenRepositoryInterface interface {
+type RefreshTokenInterface interface {
 	FindValidByUserIDForUpdate(userID uint, now time.Time) ([]model.RefreshToken, error)
 	FindByHashForUpdate(hash string) (model.RefreshToken, error)
 	FindActiveByUserIDForUpdate(userID string) ([]model.RefreshToken, error)
@@ -24,7 +24,7 @@ type RefreshTokenRepositoryInterface interface {
 }
 
 type TransactionManager interface {
-	Transaction(fn func(Interface, RefreshTokenRepositoryInterface) error) error
+	Transaction(fn func(Interface, RefreshTokenInterface) error) error
 }
 
 type UserRepository struct {
@@ -104,7 +104,7 @@ func NewGormTransactionManager(db *gorm.DB) *GormTransactionManager {
 	return &GormTransactionManager{db: db}
 }
 
-func (m *GormTransactionManager) Transaction(fn func(Interface, RefreshTokenRepositoryInterface) error) error {
+func (m *GormTransactionManager) Transaction(fn func(Interface, RefreshTokenInterface) error) error {
 	return m.db.Transaction(func(tx *gorm.DB) error {
 		return fn(NewUserRepository(tx), NewRefreshTokenRepository(tx))
 	})

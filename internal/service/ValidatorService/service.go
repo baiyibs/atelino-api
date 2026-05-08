@@ -31,7 +31,7 @@ func (s *Service) SendCode(request dto.SendVerificationCodeRequest) error {
 	code, err := email.GenerateVerificationCode()
 	if err != nil {
 		s.validatorRepo.DeleteCooldown(request.To)
-		return fmt.Errorf("generate verification code: %w", err)
+		return fmt.Errorf("生成验证码失败: %w", err)
 	}
 
 	if err := s.validatorRepo.StoreCode(request.To, code, 5*time.Minute); err != nil {
@@ -40,7 +40,7 @@ func (s *Service) SendCode(request dto.SendVerificationCodeRequest) error {
 
 	if err := email.SendVerificationCode(request.To, code); err != nil {
 		s.validatorRepo.DeleteCooldown(request.To)
-		return fmt.Errorf("send verification email: %w", err)
+		return fmt.Errorf("发送验证码失败: %w", err)
 	}
 
 	return nil
