@@ -18,7 +18,7 @@ type HitokotoListRequest struct {
 }
 
 type HitokotoResponse struct {
-	ID        int       `json:"id"`
+	ID        uint64    `json:"id"`
 	Content   string    `json:"content"`
 	CreatedAt time.Time `json:"created_at"`
 }

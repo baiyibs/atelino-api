@@ -18,6 +18,7 @@ import (
 const maxUserDevices = 3
 
 var (
+	ErrNotFound                = errors.New("没有找到指定的用户")
 	ErrInvalidCredentials      = errors.New("用户名或密码错误")
 	ErrVerificationCodeExpired = errors.New("验证码无效或已经过期，请重新获取。")
 	ErrInvalidVerificationCode = errors.New("验证码无效")
@@ -131,6 +132,18 @@ func (s *Service) Login(request dto.LoginRequest) (dto.TokenResponse, error) {
 	return tokens, nil
 }
 
+func (s *Service) GetByID(request dto.UserIDRequest) (dto.UserResponse, error) {
+	user, err := s.userRepo.FindByID(request.ID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return dto.UserResponse{}, ErrNotFound
+		}
+		return dto.UserResponse{}, err
+	}
+
+	return dto.NewUserResponse(user), nil
+}
+
 func (s *Service) List(request dto.UserListRequest, pageSize int) ([]dto.UserResponse, int64, error) {
 	page := request.Page
 	if page == 0 {
@@ -225,7 +238,7 @@ func (s *Service) Logout(request dto.LogoutRequest) error {
 	})
 }
 
-func limitUserDevices(refreshTokenRepo UserRepository.RefreshTokenInterface, userID uint) error {
+func limitUserDevices(refreshTokenRepo UserRepository.RefreshTokenInterface, userID uint64) error {
 	validTokens, err := refreshTokenRepo.FindValidByUserIDForUpdate(userID, time.Now().UTC())
 	if err != nil {
 		return fmt.Errorf("查询用户的刷新令牌时失败: %w", err)

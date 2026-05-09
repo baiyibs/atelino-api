@@ -14,6 +14,10 @@ func New() *gin.Engine {
 
 	api := r.Group("api")
 	{
+		userGroup := api.Group("user")
+		{
+			userGroup.GET("/:id", UserHandler.GetUserByID)
+		}
 		hitokotoGroup := api.Group("hitokoto")
 		{
 			hitokotoGroup.GET("", HitokotoHandler.GetHitokotoRandom)
@@ -40,17 +44,17 @@ func New() *gin.Engine {
 	adminGroup := r.Group("api")
 	adminGroup.Use(middleware.AuthMiddleware(), middleware.AdminRequired())
 	{
+		userGroup := adminGroup.Group("/user")
+		{
+			userGroup.GET("/list", UserHandler.GetUserList)
+		}
+
 		hitokotoGroup := adminGroup.Group("hitokoto")
 		{
 			hitokotoGroup.GET("/list", HitokotoHandler.GetHitokotoList)
 			hitokotoGroup.GET("/:id", HitokotoHandler.GetHitokotoById)
 			hitokotoGroup.POST("", HitokotoHandler.InsertHitokotoWithContent)
 			hitokotoGroup.DELETE("/:id", HitokotoHandler.DeleteHitokotoById)
-		}
-
-		userGroup := adminGroup.Group("/user")
-		{
-			userGroup.GET("/list", UserHandler.GetUserList)
 		}
 	}
 

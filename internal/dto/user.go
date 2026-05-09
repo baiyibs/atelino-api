@@ -5,6 +5,10 @@ import (
 	"time"
 )
 
+type UserIDRequest struct {
+	ID uint64 `uri:"id" binding:"required,min=1"`
+}
+
 type RegisterRequest struct {
 	Email    string `json:"email" binding:"required,email"`
 	Code     string `json:"code" binding:"required"`
@@ -30,7 +34,7 @@ type LogoutRequest struct {
 }
 
 type UserResponse struct {
-	ID        uint      `json:"id"`
+	ID        uint64    `json:"id"`
 	Email     string    `json:"email"`
 	Username  string    `json:"username"`
 	Role      string    `json:"role"`

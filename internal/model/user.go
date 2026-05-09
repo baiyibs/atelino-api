@@ -5,7 +5,7 @@ import (
 )
 
 type User struct {
-	ID        uint      `gorm:"primaryKey;autoIncrement" json:"id"` // UserID
+	ID        uint64    `gorm:"primaryKey;autoIncrement" json:"id"` // UserID
 	Email     string    `gorm:"uniqueIndex;not null" json:"email"`
 	Username  string    `gorm:"not null;size:20;index" json:"username"`
 	Password  string    `gorm:"not null" json:"-"`
@@ -14,8 +14,8 @@ type User struct {
 }
 
 type RefreshToken struct {
-	ID        uint       `gorm:"primaryKey;autoIncrement"`
-	UserID    uint       `gorm:"not null;index:idx_user_revoke_exp,priority:1"`             // 关联用户
+	ID        uint64     `gorm:"primaryKey;autoIncrement"`
+	UserID    uint64     `gorm:"not null;index:idx_user_revoke_exp,priority:1"`             // 关联用户
 	TokenHash string     `gorm:"not null;uniqueIndex"`                                      // 令牌哈希，用于查找
 	ExpiresAt time.Time  `gorm:"index:idx_expires_at;index:idx_user_revoke_exp,priority:3"` // 过期时间
 	RevokedAt *time.Time `gorm:"index:idx_revoked_at;index:idx_user_revoke_exp,priority:2"` // 吊销时间（NULL 表示有效）

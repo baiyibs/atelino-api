@@ -23,6 +23,15 @@ func newService() *UserService.Service {
 	)
 }
 
+func bindID(ctx *gin.Context) (dto.UserIDRequest, bool) {
+	var request dto.UserIDRequest
+	if err := ctx.ShouldBindUri(&request); err != nil {
+		ctx.JSON(http.StatusBadRequest, dto.Response{Code: 400, Message: "无效的请求"})
+		return dto.UserIDRequest{}, false
+	}
+	return request, true
+}
+
 func bindPage(ctx *gin.Context) (dto.UserListRequest, bool) {
 	var request dto.UserListRequest
 	if err := ctx.ShouldBindQuery(&request); err != nil {
@@ -78,6 +87,25 @@ func LoginTask(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, dto.Response{Code: 200, Message: "登录成功", Data: tokens})
+}
+
+func GetUserByID(ctx *gin.Context) {
+	request, ok := bindID(ctx)
+	if !ok {
+		return
+	}
+
+	user, err := newService().GetByID(request)
+	if err != nil {
+		if errors.Is(err, UserService.ErrNotFound) {
+			ctx.JSON(http.StatusNotFound, dto.Response{Code: 404, Message: "没有找到对应的用户"})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, dto.Response{Code: 500, Message: "数据库错误"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, dto.Response{Code: 200, Message: "请求成功", Data: user})
 }
 
 func GetUserList(ctx *gin.Context) {

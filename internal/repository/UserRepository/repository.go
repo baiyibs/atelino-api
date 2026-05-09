@@ -10,14 +10,14 @@ import (
 
 type Interface interface {
 	FindByEmail(email string) (model.User, error)
-	FindByID(id uint) (model.User, error)
+	FindByID(id uint64) (model.User, error)
 	Create(user *model.User) error
 	Count() (int64, error)
 	List(limit, offset int) ([]model.User, error)
 }
 
 type RefreshTokenInterface interface {
-	FindValidByUserIDForUpdate(userID uint, now time.Time) ([]model.RefreshToken, error)
+	FindValidByUserIDForUpdate(userID uint64, now time.Time) ([]model.RefreshToken, error)
 	FindByHashForUpdate(hash string) (model.RefreshToken, error)
 	FindActiveByUserIDForUpdate(userID string) ([]model.RefreshToken, error)
 	Create(token *model.RefreshToken) error
@@ -43,7 +43,7 @@ func (r *UserRepository) FindByEmail(email string) (model.User, error) {
 	return user, err
 }
 
-func (r *UserRepository) FindByID(id uint) (model.User, error) {
+func (r *UserRepository) FindByID(id uint64) (model.User, error) {
 	var user model.User
 	err := r.db.First(&user, id).Error
 	return user, err
@@ -73,7 +73,7 @@ func NewRefreshTokenRepository(db *gorm.DB) *RefreshTokenRepository {
 	return &RefreshTokenRepository{db: db}
 }
 
-func (r *RefreshTokenRepository) FindValidByUserIDForUpdate(userID uint, now time.Time) ([]model.RefreshToken, error) {
+func (r *RefreshTokenRepository) FindValidByUserIDForUpdate(userID uint64, now time.Time) ([]model.RefreshToken, error) {
 	var tokens []model.RefreshToken
 	err := r.db.Clauses(clause.Locking{Strength: "UPDATE"}).
 		Where("user_id = ? AND revoked_at IS NULL AND expires_at > ?", userID, now).

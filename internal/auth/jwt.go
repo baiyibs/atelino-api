@@ -32,10 +32,10 @@ type AccessClaims struct {
 }
 
 // GenerateAccessToken 生成 Access Token (访问令牌)
-func GenerateAccessToken(userID uint, role string) (string, error) {
+func GenerateAccessToken(userID uint64, role string) (string, error) {
 	exp := time.Now().UTC().Add(15 * time.Minute) // 24小时有效期
 	claims := AccessClaims{
-		UserID: strconv.FormatUint(uint64(userID), 10),
+		UserID: strconv.FormatUint(userID, 10),
 		Role:   role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(exp),
