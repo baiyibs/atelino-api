@@ -131,6 +131,26 @@ func (s *Service) Login(request dto.LoginRequest) (dto.TokenResponse, error) {
 	return tokens, nil
 }
 
+func (s *Service) List(request dto.UserListRequest, pageSize int) ([]dto.UserResponse, int64, error) {
+	page := request.Page
+	if page == 0 {
+		page = 1
+	}
+	offset := (page - 1) * pageSize
+
+	total, err := s.userRepo.Count()
+	if err != nil {
+		return nil, 0, err
+	}
+
+	list, err := s.userRepo.List(pageSize, offset)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return dto.NewUserResponses(list), total, nil
+}
+
 func (s *Service) Refresh(request dto.RefreshTokenRequest) (dto.TokenResponse, error) {
 	hash := auth.HashRefreshToken(request.RefreshToken)
 

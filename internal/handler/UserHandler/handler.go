@@ -23,6 +23,16 @@ func newService() *UserService.Service {
 	)
 }
 
+func bindPage(ctx *gin.Context) (dto.UserListRequest, bool) {
+	var request dto.UserListRequest
+	if err := ctx.ShouldBindQuery(&request); err != nil {
+		ctx.JSON(http.StatusBadRequest, dto.Response{Code: 400, Message: "无效的请求"})
+		return dto.UserListRequest{}, false
+	}
+
+	return request, true
+}
+
 func RegisterTask(ctx *gin.Context) {
 	var request dto.RegisterRequest
 	if err := ctx.ShouldBindJSON(&request); err != nil {
@@ -68,6 +78,23 @@ func LoginTask(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, dto.Response{Code: 200, Message: "登录成功", Data: tokens})
+}
+
+func GetUserList(ctx *gin.Context) {
+	request, ok := bindPage(ctx)
+	if !ok {
+		return
+	}
+
+	const pageSize = 20
+	list, _, err := newService().List(request, pageSize)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, dto.Response{Code: 500, Message: "数据库错误"})
+		log.Printf("获取用户列表失败: %v", err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, dto.Response{Code: 200, Message: "请求成功", Data: list})
 }
 
 func RefreshTask(ctx *gin.Context) {

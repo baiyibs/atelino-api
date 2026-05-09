@@ -12,6 +12,8 @@ type Interface interface {
 	FindByEmail(email string) (model.User, error)
 	FindByID(id uint) (model.User, error)
 	Create(user *model.User) error
+	Count() (int64, error)
+	List(limit, offset int) ([]model.User, error)
 }
 
 type RefreshTokenInterface interface {
@@ -49,6 +51,18 @@ func (r *UserRepository) FindByID(id uint) (model.User, error) {
 
 func (r *UserRepository) Create(user *model.User) error {
 	return r.db.Create(user).Error
+}
+
+func (r *UserRepository) Count() (int64, error) {
+	var total int64
+	err := r.db.Model(&model.User{}).Count(&total).Error
+	return total, err
+}
+
+func (r *UserRepository) List(limit, offset int) ([]model.User, error) {
+	var list []model.User
+	err := r.db.Order("id asc").Limit(limit).Offset(offset).Find(&list).Error
+	return list, err
 }
 
 type RefreshTokenRepository struct {

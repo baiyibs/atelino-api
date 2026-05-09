@@ -47,6 +47,11 @@ func New() *gin.Engine {
 			hitokotoGroup.POST("", HitokotoHandler.InsertHitokotoWithContent)
 			hitokotoGroup.DELETE("/:id", HitokotoHandler.DeleteHitokotoById)
 		}
+
+		userGroup := adminGroup.Group("/user")
+		{
+			userGroup.GET("/list", UserHandler.GetUserList)
+		}
 	}
 
 	return r
