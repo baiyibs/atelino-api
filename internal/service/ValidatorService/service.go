@@ -1,9 +1,9 @@
 package ValidatorService
 
 import (
-	"backend/internal/dto"
-	"backend/internal/repository/ValidatorRepository"
-	"backend/pkg/email"
+	"atelino/internal/dto"
+	"atelino/internal/repository/ValidatorRepository"
+	"atelino/pkg/email"
 	"errors"
 	"fmt"
 	"time"

@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"backend/internal/model"
+	"atelino/internal/model"
 	"time"
 )
 

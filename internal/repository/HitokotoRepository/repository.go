@@ -1,7 +1,7 @@
 package HitokotoRepository
 
 import (
-	"backend/internal/model"
+	"atelino/internal/model"
 
 	"gorm.io/gorm"
 )

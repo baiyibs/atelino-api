@@ -1,9 +1,9 @@
 package HitokotoService
 
 import (
-	"backend/internal/dto"
-	"backend/internal/model"
-	"backend/internal/repository/HitokotoRepository"
+	"atelino/internal/dto"
+	"atelino/internal/model"
+	"atelino/internal/repository/HitokotoRepository"
 	"errors"
 
 	"gorm.io/gorm"

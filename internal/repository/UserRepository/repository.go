@@ -1,7 +1,7 @@
 package UserRepository
 
 import (
-	"backend/internal/model"
+	"atelino/internal/model"
 	"time"
 
 	"gorm.io/gorm"

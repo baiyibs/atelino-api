@@ -1,10 +1,10 @@
 package HitokotoHandler
 
 import (
-	"backend/internal/database"
-	"backend/internal/dto"
-	"backend/internal/repository/HitokotoRepository"
-	"backend/internal/service/HitokotoService"
+	"atelino/internal/database"
+	"atelino/internal/dto"
+	"atelino/internal/repository/HitokotoRepository"
+	"atelino/internal/service/HitokotoService"
 	"errors"
 	"fmt"
 	"log"
@@ -35,6 +35,19 @@ func bindPage(ctx *gin.Context) (dto.HitokotoListRequest, bool) {
 	return request, true
 }
 
+// InsertHitokotoWithContent godoc
+//
+//	@Summary		添加一言
+//	@Description	创建一条新的一言记录，如果内容已存在则返回冲突错误
+//	@Tags			一言管理
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		dto.CreateHitokotoRequest					true	"一言内容"
+//	@Success		200		{object}	dto.Response{data=dto.HitokotoIDRequest}	"添加成功"
+//	@Failure		400		{object}	dto.Response								"请求参数错误"
+//	@Failure		409		{object}	dto.Response								"该一言已存在"
+//	@Failure		500		{object}	dto.Response								"数据库错误"
+//	@Router			/hitokoto [post]
 func InsertHitokotoWithContent(ctx *gin.Context) {
 	var request dto.CreateHitokotoRequest
 	if err := ctx.ShouldBindJSON(&request); err != nil {

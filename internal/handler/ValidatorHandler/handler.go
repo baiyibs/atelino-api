@@ -1,10 +1,10 @@
 package ValidatorHandler
 
 import (
-	"backend/internal/database"
-	"backend/internal/dto"
-	"backend/internal/repository/ValidatorRepository"
-	"backend/internal/service/ValidatorService"
+	"atelino/internal/database"
+	"atelino/internal/dto"
+	"atelino/internal/repository/ValidatorRepository"
+	"atelino/internal/service/ValidatorService"
 	"errors"
 	"log"
 	"net/http"

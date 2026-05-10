@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"backend/internal/auth"
-	"backend/internal/dto"
+	"atelino/internal/auth"
+	"atelino/internal/dto"
 	"net/http"
 	"strings"
 

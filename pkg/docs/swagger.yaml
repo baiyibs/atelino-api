@@ -1,0 +1,79 @@
+basePath: /api/
+definitions:
+  atelino_internal_dto.CreateHitokotoRequest:
+    properties:
+      content:
+        type: string
+    required:
+    - content
+    type: object
+  atelino_internal_dto.HitokotoIDRequest:
+    properties:
+      id:
+        minimum: 1
+        type: integer
+    required:
+    - id
+    type: object
+  atelino_internal_dto.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8080
+info:
+  contact: {}
+  description: Atelino 后端 API 文档
+  termsOfService: http://swagger.io/terms/
+  title: Atelino API
+  version: "1.0"
+paths:
+  /hitokoto:
+    post:
+      consumes:
+      - application/json
+      description: 创建一条新的一言记录，如果内容已存在则返回冲突错误
+      parameters:
+      - description: 一言内容
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/atelino_internal_dto.CreateHitokotoRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 添加成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/atelino_internal_dto.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/atelino_internal_dto.HitokotoIDRequest'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/atelino_internal_dto.Response'
+        "409":
+          description: 该一言已存在
+          schema:
+            $ref: '#/definitions/atelino_internal_dto.Response'
+        "500":
+          description: 数据库错误
+          schema:
+            $ref: '#/definitions/atelino_internal_dto.Response'
+      summary: 添加一言
+      tags:
+      - 一言管理
+securityDefinitions:
+  BearerAuth:
+    type: basic
+swagger: "2.0"

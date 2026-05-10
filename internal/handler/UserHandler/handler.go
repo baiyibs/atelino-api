@@ -1,11 +1,11 @@
 package UserHandler
 
 import (
-	"backend/internal/database"
-	"backend/internal/dto"
-	"backend/internal/repository/UserRepository"
-	"backend/internal/repository/ValidatorRepository"
-	"backend/internal/service/UserService"
+	"atelino/internal/database"
+	"atelino/internal/dto"
+	"atelino/internal/repository/UserRepository"
+	"atelino/internal/repository/ValidatorRepository"
+	"atelino/internal/service/UserService"
 	"errors"
 	"log"
 	"net/http"

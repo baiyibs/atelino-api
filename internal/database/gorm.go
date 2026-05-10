@@ -1,7 +1,7 @@
 package database
 
 import (
-	"backend/internal/model"
+	"atelino/internal/model"
 	"fmt"
 	"log"
 	"os"

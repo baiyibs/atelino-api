@@ -10,12 +10,10 @@ GOCLEAN = $(GO) clean
 GOMOD = $(GO) mod
 GOFMT = gofmt
 
-# 绿色文字输出（使用 PowerShell Write-Host，不改变全局 SHELL）
 define info_msg
 	@powershell.exe -NoProfile -Command "Write-Host '==> $(1)' -ForegroundColor Green"
 endef
 
-# 清理 bin 目录（兼容 CMD，忽略目录不存在的错误）
 define CLEAN_BIN
 	@if exist $(BUILD_DIR) rmdir /s /q $(BUILD_DIR) 2>nul
 endef
@@ -31,7 +29,7 @@ fmt:
 	$(GOFMT) -s -w .
 
 .PHONY: build
-build: tidy
+build: tidy doc
 	$(call info_msg,Cleaning bin directory)
 	$(CLEAN_BIN)
 	$(call info_msg,Building $(APP_NAME) (debug))
@@ -43,7 +41,7 @@ check:
 	@govulncheck ./...
 
 .PHONY: release
-release: check
+release: check doc
 	$(call info_msg,Cleaning bin directory)
 	$(CLEAN_BIN)
 	$(call info_msg,Cleaning build cache)
@@ -52,7 +50,7 @@ release: check
 	$(GOBUILD) -ldflags="-s -w" -o $(BUILD_DIR)/$(APP_NAME).exe $(MAIN_PATH)
 
 .PHONY: run
-run:
+run: doc
 	$(call info_msg,Cleaning bin directory)
 	$(CLEAN_BIN)
 	$(call info_msg,Running application)
@@ -77,6 +75,13 @@ clean:
 all: tidy fmt build
 	$(call info_msg,All tasks completed)
 
+.PHONY: doc
+doc:
+	$(call info_msg,Formatting Swagger docs)
+	swag fmt
+	$(call info_msg,Generating Swagger docs)
+	swag init -g $(MAIN_PATH)/main.go -o ./pkg/docs --parseDependency --parseInternal
+
 .PHONY: help
 help:
 	@echo Available targets:
@@ -85,6 +90,7 @@ help:
 	@echo   dev       : Run with hot reload (air)
 	@echo   check     : Run security vulnerability scan
 	@echo   clean     : Remove bin directory and clean build cache
+	@echo   doc       : Generate Swagger documentation
 	@echo   all       : Tidy, fmt, and build
 	@echo   tidy      : Tidy go.mod
 	@echo   fmt       : Format code

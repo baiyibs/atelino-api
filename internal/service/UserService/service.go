@@ -1,11 +1,11 @@
 package UserService
 
 import (
-	"backend/internal/auth"
-	"backend/internal/dto"
-	"backend/internal/model"
-	"backend/internal/repository/UserRepository"
-	"backend/internal/repository/ValidatorRepository"
+	"atelino/internal/auth"
+	"atelino/internal/dto"
+	"atelino/internal/model"
+	"atelino/internal/repository/UserRepository"
+	"atelino/internal/repository/ValidatorRepository"
 	"errors"
 	"fmt"
 	"time"

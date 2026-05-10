@@ -1,13 +1,13 @@
 package app
 
 import (
-	"backend/internal/auth"
-	"backend/internal/database"
-	"backend/internal/router"
-	"backend/internal/scheduler/cron"
-	"backend/internal/scheduler/task"
-	"backend/pkg/email"
-	"backend/pkg/utils"
+	"atelino/internal/auth"
+	"atelino/internal/database"
+	"atelino/internal/router"
+	"atelino/internal/scheduler/cron"
+	"atelino/internal/scheduler/task"
+	"atelino/pkg/email"
+	"atelino/pkg/utils"
 	"log"
 
 	"github.com/joho/godotenv"

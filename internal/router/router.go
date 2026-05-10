@@ -1,10 +1,10 @@
 package router
 
 import (
-	"backend/internal/handler/HitokotoHandler"
-	"backend/internal/handler/UserHandler"
-	"backend/internal/handler/ValidatorHandler"
-	"backend/internal/middleware"
+	"atelino/internal/handler/HitokotoHandler"
+	"atelino/internal/handler/UserHandler"
+	"atelino/internal/handler/ValidatorHandler"
+	"atelino/internal/middleware"
 
 	"github.com/gin-gonic/gin"
 )

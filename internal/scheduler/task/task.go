@@ -1,8 +1,8 @@
 package task
 
 import (
-	"backend/internal/database"
-	"backend/internal/model"
+	"atelino/internal/database"
+	"atelino/internal/model"
 	"log"
 	"time"
 )
