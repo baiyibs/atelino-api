@@ -45,6 +45,13 @@ func AuthMiddleware() gin.HandlerFunc {
 	}
 }
 
+func OwnerRequired() gin.HandlerFunc {
+	// TODO
+	return func(ctx *gin.Context) {
+		ctx.Next()
+	}
+}
+
 func AdminRequired() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		role, exists := ctx.Get("role")
