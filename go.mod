@@ -1,4 +1,4 @@
-module backend
+module atelino
 
 go 1.26
 

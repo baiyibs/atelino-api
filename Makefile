@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := all
 
-APP_NAME = backend
+APP_NAME = Atelino
 BUILD_DIR = bin
 MAIN_PATH = ./cmd/server
 
