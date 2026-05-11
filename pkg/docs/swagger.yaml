@@ -80,7 +80,7 @@ info:
   contact: {}
   description: Atelino 后端 API 文档
   title: Atelino API
-  version: 1.0.4
+  version: 1.0.6
 paths:
   /api/hitokoto:
     get:
