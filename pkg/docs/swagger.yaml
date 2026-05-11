@@ -7,13 +7,14 @@ definitions:
     required:
     - content
     type: object
-  atelino_internal_dto.HitokotoIDRequest:
+  atelino_internal_dto.HitokotoResponse:
     properties:
+      content:
+        type: string
+      created_at:
+        type: string
       id:
-        minimum: 1
         type: integer
-    required:
-    - id
     type: object
   atelino_internal_dto.Response:
     properties:
@@ -30,11 +31,37 @@ host: localhost:8080
 info:
   contact: {}
   description: Atelino 后端 API 文档
-  termsOfService: http://swagger.io/terms/
   title: Atelino API
   version: 1.0.1
 paths:
   /hitokoto:
+    get:
+      consumes:
+      - application/json
+      description: 从数据库中随机获取一条一言记录，数据库异常则返回 500。
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 请求成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/atelino_internal_dto.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/atelino_internal_dto.HitokotoResponse'
+              type: object
+        "404":
+          description: 没有找到对应的一言
+          schema:
+            $ref: '#/definitions/atelino_internal_dto.Response'
+        "500":
+          description: 数据库错误
+          schema:
+            $ref: '#/definitions/atelino_internal_dto.Response'
+      summary: 随机获取一言
+      tags:
+      - 一言
     post:
       consumes:
       - application/json
@@ -55,46 +82,21 @@ paths:
             allOf:
             - $ref: '#/definitions/atelino_internal_dto.Response'
             - properties:
-                code:
-                  type: integer
                 data:
-                  $ref: '#/definitions/atelino_internal_dto.HitokotoIDRequest'
-                message:
-                  type: string
+                  $ref: '#/definitions/atelino_internal_dto.HitokotoResponse'
               type: object
         "400":
           description: 请求参数错误
           schema:
-            allOf:
-            - $ref: '#/definitions/atelino_internal_dto.Response'
-            - properties:
-                code:
-                  type: integer
-                message:
-                  type: string
-              type: object
+            $ref: '#/definitions/atelino_internal_dto.Response'
         "409":
           description: 该一言已存在
           schema:
-            allOf:
-            - $ref: '#/definitions/atelino_internal_dto.Response'
-            - properties:
-                code:
-                  type: integer
-                message:
-                  type: string
-              type: object
+            $ref: '#/definitions/atelino_internal_dto.Response'
         "500":
           description: 数据库错误
           schema:
-            allOf:
-            - $ref: '#/definitions/atelino_internal_dto.Response'
-            - properties:
-                code:
-                  type: integer
-                message:
-                  type: string
-              type: object
+            $ref: '#/definitions/atelino_internal_dto.Response'
       security:
       - BearerAuth: []
       summary: 添加一言
@@ -117,64 +119,111 @@ paths:
         "200":
           description: 删除成功
           schema:
-            allOf:
-            - $ref: '#/definitions/atelino_internal_dto.Response'
-            - properties:
-                code:
-                  type: integer
-                message:
-                  type: string
-              type: object
+            $ref: '#/definitions/atelino_internal_dto.Response'
         "400":
           description: 请求参数错误
           schema:
-            allOf:
-            - $ref: '#/definitions/atelino_internal_dto.Response'
-            - properties:
-                code:
-                  type: integer
-                message:
-                  type: string
-              type: object
+            $ref: '#/definitions/atelino_internal_dto.Response'
         "401":
           description: 未授权
           schema:
-            allOf:
-            - $ref: '#/definitions/atelino_internal_dto.Response'
-            - properties:
-                code:
-                  type: integer
-                message:
-                  type: string
-              type: object
+            $ref: '#/definitions/atelino_internal_dto.Response'
         "404":
           description: 没有找到对应的一言
           schema:
-            allOf:
-            - $ref: '#/definitions/atelino_internal_dto.Response'
-            - properties:
-                code:
-                  type: integer
-                message:
-                  type: string
-              type: object
+            $ref: '#/definitions/atelino_internal_dto.Response'
         "500":
           description: 数据库错误
           schema:
-            allOf:
-            - $ref: '#/definitions/atelino_internal_dto.Response'
-            - properties:
-                code:
-                  type: integer
-                message:
-                  type: string
-              type: object
+            $ref: '#/definitions/atelino_internal_dto.Response'
       security:
       - BearerAuth: []
       summary: 删除一言
       tags:
       - 一言
+    get:
+      consumes:
+      - application/json
+      description: 传入一言的 ID，从数据库中查询对应的记录。若 ID 不存在则返回 404，数据库异常则返回 500。
+      parameters:
+      - description: 一言 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 请求成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/atelino_internal_dto.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/atelino_internal_dto.HitokotoResponse'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/atelino_internal_dto.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/atelino_internal_dto.Response'
+        "404":
+          description: 没有找到对应的一言
+          schema:
+            $ref: '#/definitions/atelino_internal_dto.Response'
+        "500":
+          description: 数据库错误
+          schema:
+            $ref: '#/definitions/atelino_internal_dto.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取一言
+      tags:
+      - 一言
+  /hitokoto/list:
+    get:
+      consumes:
+      - application/json
+      description: 从数据库中查询所有的一言记录，数据库异常则返回 500。
+      parameters:
+      - description: 页数
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 请求成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/atelino_internal_dto.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/atelino_internal_dto.HitokotoResponse'
+                  type: array
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/atelino_internal_dto.Response'
+        "500":
+          description: 数据库错误
+          schema:
+            $ref: '#/definitions/atelino_internal_dto.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取一言列表
+      tags:
+      - 一言
 securityDefinitions:
   BearerAuth:
-    type: basic
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

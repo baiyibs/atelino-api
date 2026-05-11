@@ -9,7 +9,6 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "termsOfService": "http://swagger.io/terms/",
         "contact": {},
         "version": "{{.Version}}"
     },
@@ -17,6 +16,51 @@ const docTemplate = `{
     "basePath": "{{.BasePath}}",
     "paths": {
         "/hitokoto": {
+            "get": {
+                "description": "从数据库中随机获取一条一言记录，数据库异常则返回 500。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "一言"
+                ],
+                "summary": "随机获取一言",
+                "responses": {
+                    "200": {
+                        "description": "请求成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/atelino_internal_dto.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/atelino_internal_dto.HitokotoResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "没有找到对应的一言",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "数据库错误",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -56,14 +100,8 @@ const docTemplate = `{
                                 {
                                     "type": "object",
                                     "properties": {
-                                        "code": {
-                                            "type": "integer"
-                                        },
                                         "data": {
-                                            "$ref": "#/definitions/atelino_internal_dto.HitokotoIDRequest"
-                                        },
-                                        "message": {
-                                            "type": "string"
+                                            "$ref": "#/definitions/atelino_internal_dto.HitokotoResponse"
                                         }
                                     }
                                 }
@@ -73,47 +111,53 @@ const docTemplate = `{
                     "400": {
                         "description": "请求参数错误",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/atelino_internal_dto.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer"
-                                        },
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
                         }
                     },
                     "409": {
                         "description": "该一言已存在",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/atelino_internal_dto.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer"
-                                        },
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
                         }
                     },
                     "500": {
                         "description": "数据库错误",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/hitokoto/list": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "从数据库中查询所有的一言记录，数据库异常则返回 500。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "一言"
+                ],
+                "summary": "获取一言列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "页数",
+                        "name": "page",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "请求成功",
                         "schema": {
                             "allOf": [
                                 {
@@ -122,21 +166,104 @@ const docTemplate = `{
                                 {
                                     "type": "object",
                                     "properties": {
-                                        "code": {
-                                            "type": "integer"
-                                        },
-                                        "message": {
-                                            "type": "string"
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/atelino_internal_dto.HitokotoResponse"
+                                            }
                                         }
                                     }
                                 }
                             ]
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "数据库错误",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
                         }
                     }
                 }
             }
         },
         "/hitokoto/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "传入一言的 ID，从数据库中查询对应的记录。若 ID 不存在则返回 404，数据库异常则返回 500。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "一言"
+                ],
+                "summary": "获取一言",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "一言 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "请求成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/atelino_internal_dto.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/atelino_internal_dto.HitokotoResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "没有找到对应的一言",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "数据库错误",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "security": [
                     {
@@ -167,106 +294,31 @@ const docTemplate = `{
                     "200": {
                         "description": "删除成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/atelino_internal_dto.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer"
-                                        },
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
                         }
                     },
                     "400": {
                         "description": "请求参数错误",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/atelino_internal_dto.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer"
-                                        },
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/atelino_internal_dto.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer"
-                                        },
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
                         }
                     },
                     "404": {
                         "description": "没有找到对应的一言",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/atelino_internal_dto.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer"
-                                        },
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
                         }
                     },
                     "500": {
                         "description": "数据库错误",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/atelino_internal_dto.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer"
-                                        },
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
                         }
                     }
                 }
@@ -285,15 +337,17 @@ const docTemplate = `{
                 }
             }
         },
-        "atelino_internal_dto.HitokotoIDRequest": {
+        "atelino_internal_dto.HitokotoResponse": {
             "type": "object",
-            "required": [
-                "id"
-            ],
             "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
                 "id": {
-                    "type": "integer",
-                    "minimum": 1
+                    "type": "integer"
                 }
             }
         },
@@ -312,7 +366,9 @@ const docTemplate = `{
     },
     "securityDefinitions": {
         "BearerAuth": {
-            "type": "basic"
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     },
     "externalDocs": {
