@@ -1,7 +1,7 @@
 package main
 
 //	@title			Atelino API
-//	@version		1.0
+//	@version		1.0.1
 //	@description	Atelino 后端 API 文档
 //	@termsOfService	http://swagger.io/terms/
 

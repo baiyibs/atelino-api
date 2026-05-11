@@ -53,7 +53,7 @@ func New() *gin.Engine {
 		{
 			hitokotoGroup.GET("/list", HitokotoHandler.GetHitokotoList)
 			hitokotoGroup.GET("/:id", HitokotoHandler.GetHitokotoById)
-			hitokotoGroup.POST("", HitokotoHandler.InsertHitokotoWithContent)
+			hitokotoGroup.POST("", HitokotoHandler.CreateHitokotoWithContent)
 			hitokotoGroup.DELETE("/:id", HitokotoHandler.DeleteHitokotoById)
 		}
 	}

@@ -35,20 +35,21 @@ func bindPage(ctx *gin.Context) (dto.HitokotoListRequest, bool) {
 	return request, true
 }
 
-// InsertHitokotoWithContent godoc
+// CreateHitokotoWithContent 根据请求体中的内容创建一条新的一言记录。
 //
 //	@Summary		添加一言
-//	@Description	创建一条新的一言记录，如果内容已存在则返回冲突错误
-//	@Tags			一言管理
+//	@Description	创建一条新的一言记录。如果内容已存在，则返回 409 冲突错误；其他数据库异常返回 500。
+//	@Tags			一言
 //	@Accept			json
 //	@Produce		json
-//	@Param			request	body		dto.CreateHitokotoRequest					true	"一言内容"
-//	@Success		200		{object}	dto.Response{data=dto.HitokotoIDRequest}	"添加成功"
-//	@Failure		400		{object}	dto.Response								"请求参数错误"
-//	@Failure		409		{object}	dto.Response								"该一言已存在"
-//	@Failure		500		{object}	dto.Response								"数据库错误"
+//	@Security		BearerAuth
+//	@Param			request	body		dto.CreateHitokotoRequest											true	"一言内容"
+//	@Success		200		{object}	dto.Response{code=int,message=string,data=dto.HitokotoIDRequest}	"添加成功"
+//	@Failure		400		{object}	dto.Response{code=int,message=string}								"请求参数错误"
+//	@Failure		409		{object}	dto.Response{code=int,message=string}								"该一言已存在"
+//	@Failure		500		{object}	dto.Response{code=int,message=string}								"数据库错误"
 //	@Router			/hitokoto [post]
-func InsertHitokotoWithContent(ctx *gin.Context) {
+func CreateHitokotoWithContent(ctx *gin.Context) {
 	var request dto.CreateHitokotoRequest
 	if err := ctx.ShouldBindJSON(&request); err != nil {
 		ctx.JSON(http.StatusBadRequest, dto.Response{
@@ -71,6 +72,21 @@ func InsertHitokotoWithContent(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, dto.Response{Code: 200, Message: "添加成功", Data: hitokoto})
 }
 
+// DeleteHitokotoById 根据 ID 删除一条一言记录。
+//
+//	@Summary		删除一言
+//	@Description	传入一言的 ID，从数据库中删除对应的记录。若 ID 不存在则返回 404，数据库异常则返回 500。
+//	@Tags			一言
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Param			id	path		int										true	"一言 ID"
+//	@Success		200	{object}	dto.Response{code=int,message=string}	"删除成功"
+//	@Failure		400	{object}	dto.Response{code=int,message=string}	"请求参数错误"
+//	@Failure		401	{object}	dto.Response{code=int,message=string}	"未授权"
+//	@Failure		404	{object}	dto.Response{code=int,message=string}	"没有找到对应的一言"
+//	@Failure		500	{object}	dto.Response{code=int,message=string}	"数据库错误"
+//	@Router			/hitokoto/{id} [delete]
 func DeleteHitokotoById(ctx *gin.Context) {
 	request, ok := bindID(ctx)
 	if !ok {
