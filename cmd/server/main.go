@@ -1,11 +1,11 @@
 package main
 
 //	@title			Atelino API
-//	@version		1.0.2
+//	@version		1.0.3
 //	@description	Atelino 后端 API 文档
 
 //	@host		localhost:8080
-//	@BasePath	/api/
+//	@BasePath	/
 
 //	@securityDefinitions.apikey	BearerAuth
 //	@in							header

@@ -38,7 +38,7 @@ func bindPage(ctx *gin.Context) (dto.HitokotoListRequest, bool) {
 // CreateHitokotoWithContent 根据请求体中的内容创建一条新的一言记录。
 //
 //	@Summary		添加一言
-//	@Description	创建一条新的一言记录。如果内容已存在，则返回 409 冲突错误；其他数据库异常返回 500。
+//	@Description	创建一条新的一言记录。
 //	@Tags			一言
 //	@Accept			json
 //	@Produce		json
@@ -48,7 +48,7 @@ func bindPage(ctx *gin.Context) (dto.HitokotoListRequest, bool) {
 //	@Failure		400		{object}	dto.Response{}							"请求参数错误"
 //	@Failure		409		{object}	dto.Response{}							"该一言已存在"
 //	@Failure		500		{object}	dto.Response{}							"数据库错误"
-//	@Router			/hitokoto [post]
+//	@Router			/api/hitokoto [post]
 func CreateHitokotoWithContent(ctx *gin.Context) {
 	var request dto.CreateHitokotoRequest
 	if err := ctx.ShouldBindJSON(&request); err != nil {
@@ -75,7 +75,7 @@ func CreateHitokotoWithContent(ctx *gin.Context) {
 // DeleteHitokotoById 根据 ID 删除一条一言记录。
 //
 //	@Summary		删除一言
-//	@Description	传入一言的 ID，从数据库中删除对应的记录。若 ID 不存在则返回 404，数据库异常则返回 500。
+//	@Description	传入一言的 ID，从数据库中删除对应的记录。
 //	@Tags			一言
 //	@Accept			json
 //	@Produce		json
@@ -86,7 +86,7 @@ func CreateHitokotoWithContent(ctx *gin.Context) {
 //	@Failure		401	{object}	dto.Response{}	"未授权"
 //	@Failure		404	{object}	dto.Response{}	"没有找到对应的一言"
 //	@Failure		500	{object}	dto.Response{}	"数据库错误"
-//	@Router			/hitokoto/{id} [delete]
+//	@Router			/api/hitokoto/{id} [delete]
 func DeleteHitokotoById(ctx *gin.Context) {
 	request, ok := bindID(ctx)
 	if !ok {
@@ -108,7 +108,7 @@ func DeleteHitokotoById(ctx *gin.Context) {
 // GetHitokotoList 获取所有一言
 //
 //	@Summary		获取一言列表
-//	@Description	从数据库中查询所有的一言记录，数据库异常则返回 500。
+//	@Description	从数据库中查询所有的一言记录。
 //	@Tags			一言
 //	@Accept			json
 //	@Produce		json
@@ -117,7 +117,7 @@ func DeleteHitokotoById(ctx *gin.Context) {
 //	@Success		200		{object}	dto.Response{data=[]dto.HitokotoResponse}	"请求成功"
 //	@Failure		401		{object}	dto.Response{}								"未授权"
 //	@Failure		500		{object}	dto.Response{}								"数据库错误"
-//	@Router			/hitokoto/list [get]
+//	@Router			/api/hitokoto/list [get]
 func GetHitokotoList(ctx *gin.Context) {
 	request, ok := bindPage(ctx)
 	if !ok {
@@ -138,7 +138,7 @@ func GetHitokotoList(ctx *gin.Context) {
 // GetHitokotoById 根据 ID 获取一条一言记录。
 //
 //	@Summary		获取一言
-//	@Description	传入一言的 ID，从数据库中查询对应的记录。若 ID 不存在则返回 404，数据库异常则返回 500。
+//	@Description	传入一言的 ID，从数据库中查询对应的记录。
 //	@Tags			一言
 //	@Accept			json
 //	@Produce		json
@@ -149,7 +149,7 @@ func GetHitokotoList(ctx *gin.Context) {
 //	@Failure		401	{object}	dto.Response{}							"未授权"
 //	@Failure		404	{object}	dto.Response{}							"没有找到对应的一言"
 //	@Failure		500	{object}	dto.Response{}							"数据库错误"
-//	@Router			/hitokoto/{id} [get]
+//	@Router			/api/hitokoto/{id} [get]
 func GetHitokotoById(ctx *gin.Context) {
 	request, ok := bindID(ctx)
 	if !ok {
@@ -172,14 +172,14 @@ func GetHitokotoById(ctx *gin.Context) {
 // GetHitokotoRandom 随机获取一条一言记录。
 //
 //	@Summary		随机获取一言
-//	@Description	从数据库中随机获取一条一言记录，数据库异常则返回 500。
+//	@Description	从数据库中随机获取一条一言记录。
 //	@Tags			一言
 //	@Accept			json
 //	@Produce		json
 //	@Success		200	{object}	dto.Response{data=dto.HitokotoResponse}	"请求成功"
 //	@Failure		404	{object}	dto.Response{}							"没有找到对应的一言"
 //	@Failure		500	{object}	dto.Response{}							"数据库错误"
-//	@Router			/hitokoto [get]
+//	@Router			/api/hitokoto [get]
 func GetHitokotoRandom(ctx *gin.Context) {
 	hitokoto, err := newService().Random()
 	if err != nil {

@@ -42,6 +42,19 @@ func bindPage(ctx *gin.Context) (dto.UserListRequest, bool) {
 	return request, true
 }
 
+// RegisterTask 用户注册
+//
+//	@Summary		用户注册
+//	@Description	用户注册接口
+//	@Tags			用户
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		dto.RegisterRequest	true	"注册请求体"
+//	@Success		200		{object}	dto.Response{}		"注册成功"
+//	@Failure		400		{object}	dto.Response{}		"请求参数错误"
+//	@Failure		409		{object}	dto.Response{}		"该邮箱已注册"
+//	@Failure		500		{object}	dto.Response{}		"注册失败"
+//	@Router			/auth/register [post]
 func RegisterTask(ctx *gin.Context) {
 	var request dto.RegisterRequest
 	if err := ctx.ShouldBindJSON(&request); err != nil {
@@ -68,6 +81,19 @@ func RegisterTask(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, dto.Response{Code: 200, Message: "注册成功"})
 }
 
+// LoginTask 用户登录
+//
+//	@Summary		用户登录
+//	@Description	用户登录接口
+//	@Tags			用户
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		dto.LoginRequest						true	"登录请求体"
+//	@Success		200		{object}	dto.Response{data=dto.TokenResponse}	"登录成功"
+//	@Failure		400		{object}	dto.Response{}							"请求参数错误"
+//	@Failure		401		{object}	dto.Response{}							"用户名或密码错误"
+//	@Failure		500		{object}	dto.Response{}							"登录失败"
+//	@Router			/auth/login [post]
 func LoginTask(ctx *gin.Context) {
 	var request dto.LoginRequest
 	if err := ctx.ShouldBindJSON(&request); err != nil {
@@ -89,6 +115,19 @@ func LoginTask(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, dto.Response{Code: 200, Message: "登录成功", Data: tokens})
 }
 
+// GetUserByID 根据 ID 获取一名用户
+//
+//	@Summary		获取用户
+//	@Description	传入用户的 ID，从数据库中查询指定的用户。
+//	@Tags			用户
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		int										true	"用户 ID"
+//	@Success		200	{object}	dto.Response{data=dto.UserResponse{}}	"请求成功"
+//	@Failure		400	{object}	dto.Response{}							"请求参数错误"
+//	@Failure		401	{object}	dto.Response{}							"未授权"
+//	@Failure		500	{object}	dto.Response{}							"查询失败"
+//	@Router			/api/user/{id} [get]
 func GetUserByID(ctx *gin.Context) {
 	request, ok := bindID(ctx)
 	if !ok {
