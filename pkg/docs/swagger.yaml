@@ -382,6 +382,7 @@ paths:
       - 用户
 schemes:
 - http
+- https
 securityDefinitions:
   BearerAuth:
     in: header

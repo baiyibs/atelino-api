@@ -631,7 +631,7 @@ var SwaggerInfo = &swag.Spec{
 	Version:          "1.0.4",
 	Host:             "localhost:8080",
 	BasePath:         "/",
-	Schemes:          []string{"http"},
+	Schemes:          []string{"http", "https"},
 	Title:            "Atelino API",
 	Description:      "Atelino 后端 API 文档",
 	InfoInstanceName: "swagger",

@@ -4,12 +4,12 @@ import (
 	"atelino/internal/app"
 
 	//	@title			Atelino API
-	//	@version		1.0.4
+	//	@version		1.0.5
 	//	@description	Atelino 后端 API 文档
 
 	//	@host						localhost:8080
 	//	@BasePath					/
-	//	@schemes					http
+	//	@schemes					http https
 	//	@securityDefinitions.apikey	BearerAuth
 	//	@in							header
 	//	@name						Authorization
