@@ -1,0 +1,27 @@
+name: Notify SDK Repo to Update
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'pkg/docs/swagger.json'
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Get API Version
+        id: get_version
+        run: echo "version=$(jq -r .info.version pkg/docs/swagger.json)" >> $GITHUB_OUTPUT
+
+      - name: Notify SDK Repository
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
+          repository: baiyibs/atelino-sdk
+          event-type: api-version-updated
+          client-payload: '{"version": "${{ steps.get_version.outputs.version }}"}'
