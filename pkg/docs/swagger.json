@@ -1,10 +1,13 @@
 {
+    "schemes": [
+        "http"
+    ],
     "swagger": "2.0",
     "info": {
         "description": "Atelino 后端 API 文档",
         "title": "Atelino API",
         "contact": {},
-        "version": "1.0.3"
+        "version": "1.0.4"
     },
     "host": "localhost:8080",
     "basePath": "/",

@@ -80,7 +80,7 @@ info:
   contact: {}
   description: Atelino 后端 API 文档
   title: Atelino API
-  version: 1.0.3
+  version: 1.0.4
 paths:
   /api/hitokoto:
     get:
@@ -380,6 +380,8 @@ paths:
       summary: 用户注册
       tags:
       - 用户
+schemes:
+- http
 securityDefinitions:
   BearerAuth:
     in: header
