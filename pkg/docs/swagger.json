@@ -8,7 +8,7 @@
         "description": "Atelino 后端 API 文档",
         "title": "Atelino API",
         "contact": {},
-        "version": "1.0.10"
+        "version": "1.1.0"
     },
     "host": "localhost:8080",
     "basePath": "/",
