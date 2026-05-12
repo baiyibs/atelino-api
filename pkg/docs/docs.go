@@ -838,8 +838,7 @@ const docTemplate = `{
                 },
                 "message": {
                     "description": "响应消息",
-                    "type": "string",
-                    "example": "请求成功"
+                    "type": "string"
                 }
             }
         },
@@ -922,7 +921,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0.8",
+	Version:          "1.0.9",
 	Host:             "localhost:8080",
 	BasePath:         "/",
 	Schemes:          []string{"http", "https"},

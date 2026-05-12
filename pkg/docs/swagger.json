@@ -8,7 +8,7 @@
         "description": "Atelino 后端 API 文档",
         "title": "Atelino API",
         "contact": {},
-        "version": "1.0.8"
+        "version": "1.0.9"
     },
     "host": "localhost:8080",
     "basePath": "/",
@@ -836,8 +836,7 @@
                 },
                 "message": {
                     "description": "响应消息",
-                    "type": "string",
-                    "example": "请求成功"
+                    "type": "string"
                 }
             }
         },

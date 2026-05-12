@@ -86,7 +86,6 @@ definitions:
         description: 响应数据
       message:
         description: 响应消息
-        example: 请求成功
         type: string
     type: object
   atelino_internal_dto.SendVerificationCodeRequest:
@@ -144,7 +143,7 @@ info:
   contact: {}
   description: Atelino 后端 API 文档
   title: Atelino API
-  version: 1.0.8
+  version: 1.0.9
 paths:
   /api/hitokoto:
     get:

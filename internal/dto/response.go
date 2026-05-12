@@ -6,7 +6,7 @@ type Response struct {
 	Code int `json:"code" example:"200"`
 
 	// 响应消息
-	Message string `json:"message" example:"请求成功"`
+	Message string `json:"message"`
 
 	// 响应数据
 	Data interface{} `json:"data"`
