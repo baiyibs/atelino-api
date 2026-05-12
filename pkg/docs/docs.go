@@ -731,7 +731,9 @@ const docTemplate = `{
             ],
             "properties": {
                 "content": {
-                    "type": "string"
+                    "description": "一言内容",
+                    "type": "string",
+                    "example": "千里之行，始于足下。"
                 }
             }
         },
@@ -739,13 +741,19 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "content": {
-                    "type": "string"
+                    "description": "一言内容",
+                    "type": "string",
+                    "example": "千里之行，始于足下。"
                 },
                 "created_at": {
-                    "type": "string"
+                    "description": "创建时间",
+                    "type": "string",
+                    "example": "2024-01-01T00:00:00Z"
                 },
                 "id": {
-                    "type": "integer"
+                    "description": "一言 ID",
+                    "type": "integer",
+                    "example": 1
                 }
             }
         },
@@ -757,10 +765,15 @@ const docTemplate = `{
             ],
             "properties": {
                 "email": {
-                    "type": "string"
+                    "description": "邮箱地址",
+                    "type": "string",
+                    "format": "email",
+                    "example": "user@example.com"
                 },
                 "password": {
-                    "type": "string"
+                    "description": "密码",
+                    "type": "string",
+                    "example": "password123"
                 }
             }
         },
@@ -771,7 +784,9 @@ const docTemplate = `{
             ],
             "properties": {
                 "refresh_token": {
-                    "type": "string"
+                    "description": "刷新令牌",
+                    "type": "string",
+                    "example": "eyJhbGciOiJIUzI1NiIs..."
                 }
             }
         },
@@ -785,18 +800,28 @@ const docTemplate = `{
             ],
             "properties": {
                 "code": {
-                    "type": "string"
+                    "description": "邮箱验证码",
+                    "type": "string",
+                    "example": "123456"
                 },
                 "email": {
-                    "type": "string"
+                    "description": "邮箱地址",
+                    "type": "string",
+                    "format": "email",
+                    "example": "user@example.com"
                 },
                 "password": {
+                    "description": "密码，最少 8 位",
                     "type": "string",
-                    "minLength": 8
+                    "minLength": 8,
+                    "example": "password123"
                 },
                 "username": {
+                    "description": "用户名，长度 2-20",
                     "type": "string",
-                    "maxLength": 20
+                    "maxLength": 20,
+                    "minLength": 2,
+                    "example": "John"
                 }
             }
         },
@@ -804,11 +829,17 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "code": {
-                    "type": "integer"
+                    "description": "状态码，200 表示成功",
+                    "type": "integer",
+                    "example": 200
                 },
-                "data": {},
+                "data": {
+                    "description": "响应数据"
+                },
                 "message": {
-                    "type": "string"
+                    "description": "响应消息",
+                    "type": "string",
+                    "example": "请求成功"
                 }
             }
         },
@@ -819,7 +850,10 @@ const docTemplate = `{
             ],
             "properties": {
                 "to": {
-                    "type": "string"
+                    "description": "邮箱地址",
+                    "type": "string",
+                    "format": "email",
+                    "example": "user@example.com"
                 }
             }
         },
@@ -827,10 +861,14 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "access_token": {
-                    "type": "string"
+                    "description": "访问令牌",
+                    "type": "string",
+                    "example": "eyJhbGciOiJIUzI1NiIs..."
                 },
                 "refresh_token": {
-                    "type": "string"
+                    "description": "刷新令牌",
+                    "type": "string",
+                    "example": "eyJhbGciOiJIUzI1NiIs..."
                 }
             }
         },
@@ -838,19 +876,33 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "created_at": {
-                    "type": "string"
+                    "description": "创建时间",
+                    "type": "string",
+                    "example": "2024-01-01T00:00:00Z"
                 },
                 "email": {
-                    "type": "string"
+                    "description": "邮箱地址",
+                    "type": "string",
+                    "example": "user@example.com"
                 },
                 "id": {
-                    "type": "integer"
+                    "description": "用户 ID",
+                    "type": "integer",
+                    "example": 1
                 },
                 "role": {
-                    "type": "string"
+                    "description": "角色：user 或 admin",
+                    "type": "string",
+                    "enum": [
+                        "user",
+                        "admin"
+                    ],
+                    "example": "user"
                 },
                 "username": {
-                    "type": "string"
+                    "description": "用户名",
+                    "type": "string",
+                    "example": "John"
                 }
             }
         }
