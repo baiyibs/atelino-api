@@ -49,6 +49,7 @@ func bindPage(ctx *gin.Context) (dto.UserListRequest, bool) {
 //	@Tags			用户
 //	@Accept			json
 //	@Produce		json
+//	@ID				register
 //	@Param			request	body		dto.RegisterRequest	true	"注册请求体"
 //	@Success		200		{object}	dto.Response{}		"注册成功"
 //	@Failure		400		{object}	dto.Response{}		"请求参数错误"
@@ -88,6 +89,7 @@ func RegisterTask(ctx *gin.Context) {
 //	@Tags			用户
 //	@Accept			json
 //	@Produce		json
+//	@ID				login
 //	@Param			request	body		dto.LoginRequest						true	"登录请求体"
 //	@Success		200		{object}	dto.Response{data=dto.TokenResponse}	"登录成功"
 //	@Failure		400		{object}	dto.Response{}							"请求参数错误"
@@ -122,6 +124,7 @@ func LoginTask(ctx *gin.Context) {
 //	@Tags			用户
 //	@Accept			json
 //	@Produce		json
+//	@ID				getUserByID
 //	@Param			id	path		int										true	"用户 ID"
 //	@Success		200	{object}	dto.Response{data=dto.UserResponse{}}	"请求成功"
 //	@Failure		400	{object}	dto.Response{}							"请求参数错误"
@@ -147,6 +150,18 @@ func GetUserByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, dto.Response{Code: 200, Message: "请求成功", Data: user})
 }
 
+// GetUserList 获取用户列表
+//
+//	@Summary		获取用户列表
+//	@Description	分页获取所有用户的列表。
+//	@Tags			用户
+//	@Accept			json
+//	@Produce		json
+//	@ID				getUserList
+//	@Param			page	query		int										false	"页数，默认为1"
+//	@Success		200		{object}	dto.Response{data=[]dto.UserResponse}	"请求成功"
+//	@Failure		500		{object}	dto.Response{}							"数据库错误"
+//	@Router			/api/user/list [get]
 func GetUserList(ctx *gin.Context) {
 	request, ok := bindPage(ctx)
 	if !ok {
@@ -164,6 +179,20 @@ func GetUserList(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, dto.Response{Code: 200, Message: "请求成功", Data: list})
 }
 
+// RefreshTask 刷新令牌
+//
+//	@Summary		刷新令牌
+//	@Description	使用刷新令牌获取新的访问令牌。
+//	@Tags			用户
+//	@Accept			json
+//	@Produce		json
+//	@ID				refreshToken
+//	@Param			request	body		dto.RefreshTokenRequest					true	"刷新令牌请求体"
+//	@Success		200		{object}	dto.Response{data=dto.TokenResponse}	"刷新成功"
+//	@Failure		400		{object}	dto.Response{}							"请求参数错误"
+//	@Failure		401		{object}	dto.Response{}							"令牌无效或已过期"
+//	@Failure		500		{object}	dto.Response{}							"服务器内部错误"
+//	@Router			/auth/refresh [post]
 func RefreshTask(ctx *gin.Context) {
 	var request dto.RefreshTokenRequest
 	if err := ctx.ShouldBindJSON(&request); err != nil {
@@ -185,6 +214,19 @@ func RefreshTask(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, dto.Response{Code: 200, Message: "刷新成功", Data: tokens})
 }
 
+// LogoutTask 用户登出
+//
+//	@Summary		用户登出
+//	@Description	用户登出接口，清除用户的会话信息。
+//	@Tags			用户
+//	@Accept			json
+//	@Produce		json
+//	@ID				logout
+//	@Security		BearerAuth
+//	@Success		200	{object}	dto.Response{}	"登出成功"
+//	@Failure		401	{object}	dto.Response{}	"未登录或登录状态无效"
+//	@Failure		500	{object}	dto.Response{}	"登出失败"
+//	@Router			/auth/logout [post]
 func LogoutTask(ctx *gin.Context) {
 	userID, exists := ctx.Get("user_id")
 	if !exists {

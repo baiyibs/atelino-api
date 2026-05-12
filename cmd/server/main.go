@@ -4,7 +4,7 @@ import (
 	"atelino/internal/app"
 
 	//	@title			Atelino API
-	//	@version		1.0.7
+	//	@version		1.0.8
 	//	@description	Atelino 后端 API 文档
 
 	//	@host						localhost:8080

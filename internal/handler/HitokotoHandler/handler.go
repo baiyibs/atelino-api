@@ -42,6 +42,7 @@ func bindPage(ctx *gin.Context) (dto.HitokotoListRequest, bool) {
 //	@Tags			一言
 //	@Accept			json
 //	@Produce		json
+//	@ID				createHitokoto
 //	@Security		BearerAuth
 //	@Param			request	body		dto.CreateHitokotoRequest				true	"一言内容"
 //	@Success		200		{object}	dto.Response{data=dto.HitokotoResponse}	"添加成功"
@@ -79,6 +80,7 @@ func CreateHitokotoWithContent(ctx *gin.Context) {
 //	@Tags			一言
 //	@Accept			json
 //	@Produce		json
+//	@ID				deleteHitokotoByID
 //	@Security		BearerAuth
 //	@Param			id	path		int				true	"一言 ID"
 //	@Success		200	{object}	dto.Response{}	"删除成功"
@@ -112,6 +114,7 @@ func DeleteHitokotoById(ctx *gin.Context) {
 //	@Tags			一言
 //	@Accept			json
 //	@Produce		json
+//	@ID				getHitokotoList
 //	@Security		BearerAuth
 //	@Param			page	query		int											false	"页数"
 //	@Success		200		{object}	dto.Response{data=[]dto.HitokotoResponse}	"请求成功"
@@ -142,6 +145,7 @@ func GetHitokotoList(ctx *gin.Context) {
 //	@Tags			一言
 //	@Accept			json
 //	@Produce		json
+//	@ID				getHitokotoByID
 //	@Security		BearerAuth
 //	@Param			id	path		int										true	"一言 ID"
 //	@Success		200	{object}	dto.Response{data=dto.HitokotoResponse}	"请求成功"
@@ -176,6 +180,7 @@ func GetHitokotoById(ctx *gin.Context) {
 //	@Tags			一言
 //	@Accept			json
 //	@Produce		json
+//	@ID				getHitokotoRandom
 //	@Success		200	{object}	dto.Response{data=dto.HitokotoResponse}	"请求成功"
 //	@Failure		404	{object}	dto.Response{}							"没有找到对应的一言"
 //	@Failure		500	{object}	dto.Response{}							"数据库错误"

@@ -28,6 +28,7 @@ const docTemplate = `{
                     "一言"
                 ],
                 "summary": "随机获取一言",
+                "operationId": "getHitokotoRandom",
                 "responses": {
                     "200": {
                         "description": "请求成功",
@@ -78,6 +79,7 @@ const docTemplate = `{
                     "一言"
                 ],
                 "summary": "添加一言",
+                "operationId": "createHitokoto",
                 "parameters": [
                     {
                         "description": "一言内容",
@@ -147,6 +149,7 @@ const docTemplate = `{
                     "一言"
                 ],
                 "summary": "获取一言列表",
+                "operationId": "getHitokotoList",
                 "parameters": [
                     {
                         "type": "integer",
@@ -210,6 +213,7 @@ const docTemplate = `{
                     "一言"
                 ],
                 "summary": "获取一言",
+                "operationId": "getHitokotoByID",
                 "parameters": [
                     {
                         "type": "integer",
@@ -281,6 +285,7 @@ const docTemplate = `{
                     "一言"
                 ],
                 "summary": "删除一言",
+                "operationId": "deleteHitokotoByID",
                 "parameters": [
                     {
                         "type": "integer",
@@ -324,6 +329,59 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/user/list": {
+            "get": {
+                "description": "分页获取所有用户的列表。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户"
+                ],
+                "summary": "获取用户列表",
+                "operationId": "getUserList",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "页数，默认为1",
+                        "name": "page",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "请求成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/atelino_internal_dto.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/atelino_internal_dto.UserResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "数据库错误",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/user/{id}": {
             "get": {
                 "description": "传入用户的 ID，从数据库中查询指定的用户。",
@@ -337,6 +395,7 @@ const docTemplate = `{
                     "用户"
                 ],
                 "summary": "获取用户",
+                "operationId": "getUserByID",
                 "parameters": [
                     {
                         "type": "integer",
@@ -399,6 +458,7 @@ const docTemplate = `{
                     "用户"
                 ],
                 "summary": "用户登录",
+                "operationId": "login",
                 "parameters": [
                     {
                         "description": "登录请求体",
@@ -450,6 +510,112 @@ const docTemplate = `{
                 }
             }
         },
+        "/auth/logout": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "用户登出接口，清除用户的会话信息。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户"
+                ],
+                "summary": "用户登出",
+                "operationId": "logout",
+                "responses": {
+                    "200": {
+                        "description": "登出成功",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未登录或登录状态无效",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "登出失败",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/refresh": {
+            "post": {
+                "description": "使用刷新令牌获取新的访问令牌。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户"
+                ],
+                "summary": "刷新令牌",
+                "operationId": "refreshToken",
+                "parameters": [
+                    {
+                        "description": "刷新令牌请求体",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.RefreshTokenRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "刷新成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/atelino_internal_dto.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/atelino_internal_dto.TokenResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "令牌无效或已过期",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/register": {
             "post": {
                 "description": "用户注册接口",
@@ -463,6 +629,7 @@ const docTemplate = `{
                     "用户"
                 ],
                 "summary": "用户注册",
+                "operationId": "register",
                 "parameters": [
                     {
                         "description": "注册请求体",
@@ -495,6 +662,59 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "注册失败",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/verify/send": {
+            "post": {
+                "description": "向指定的邮箱发送验证码用于注册或其他用途。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "验证"
+                ],
+                "summary": "发送验证码",
+                "operationId": "sendVerificationCode",
+                "parameters": [
+                    {
+                        "description": "邮箱地址",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.SendVerificationCodeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "发送成功",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    },
+                    "429": {
+                        "description": "请求过于频繁，请稍后再试",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "发送验证码失败",
                         "schema": {
                             "$ref": "#/definitions/atelino_internal_dto.Response"
                         }
@@ -544,6 +764,17 @@ const docTemplate = `{
                 }
             }
         },
+        "atelino_internal_dto.RefreshTokenRequest": {
+            "type": "object",
+            "required": [
+                "refresh_token"
+            ],
+            "properties": {
+                "refresh_token": {
+                    "type": "string"
+                }
+            }
+        },
         "atelino_internal_dto.RegisterRequest": {
             "type": "object",
             "required": [
@@ -577,6 +808,17 @@ const docTemplate = `{
                 },
                 "data": {},
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "atelino_internal_dto.SendVerificationCodeRequest": {
+            "type": "object",
+            "required": [
+                "to"
+            ],
+            "properties": {
+                "to": {
                     "type": "string"
                 }
             }
@@ -628,7 +870,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0.7",
+	Version:          "1.0.8",
 	Host:             "localhost:8080",
 	BasePath:         "/",
 	Schemes:          []string{"http", "https"},
