@@ -130,7 +130,7 @@ func LoginTask(ctx *gin.Context) {
 //	@Failure		400	{object}	dto.Response{}							"请求参数错误"
 //	@Failure		401	{object}	dto.Response{}							"未授权"
 //	@Failure		500	{object}	dto.Response{}							"查询失败"
-//	@Router			/api/user/{id} [get]
+//	@Router			/user/{id} [get]
 func GetUserByID(ctx *gin.Context) {
 	request, ok := bindID(ctx)
 	if !ok {
@@ -161,7 +161,7 @@ func GetUserByID(ctx *gin.Context) {
 //	@Param			page	query		int										false	"页数，默认为1"
 //	@Success		200		{object}	dto.Response{data=[]dto.UserResponse}	"请求成功"
 //	@Failure		500		{object}	dto.Response{}							"数据库错误"
-//	@Router			/api/user/list [get]
+//	@Router			/user/list [get]
 func GetUserList(ctx *gin.Context) {
 	request, ok := bindPage(ctx)
 	if !ok {

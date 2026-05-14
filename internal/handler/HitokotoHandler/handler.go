@@ -49,7 +49,7 @@ func bindPage(ctx *gin.Context) (dto.HitokotoListRequest, bool) {
 //	@Failure		400		{object}	dto.Response{}							"请求参数错误"
 //	@Failure		409		{object}	dto.Response{}							"该一言已存在"
 //	@Failure		500		{object}	dto.Response{}							"数据库错误"
-//	@Router			/api/hitokoto [post]
+//	@Router			/hitokoto [post]
 func CreateHitokotoWithContent(ctx *gin.Context) {
 	var request dto.CreateHitokotoRequest
 	if err := ctx.ShouldBindJSON(&request); err != nil {
@@ -88,7 +88,7 @@ func CreateHitokotoWithContent(ctx *gin.Context) {
 //	@Failure		401	{object}	dto.Response{}	"未授权"
 //	@Failure		404	{object}	dto.Response{}	"没有找到对应的一言"
 //	@Failure		500	{object}	dto.Response{}	"数据库错误"
-//	@Router			/api/hitokoto/{id} [delete]
+//	@Router			/hitokoto/{id} [delete]
 func DeleteHitokotoById(ctx *gin.Context) {
 	request, ok := bindID(ctx)
 	if !ok {
@@ -120,7 +120,7 @@ func DeleteHitokotoById(ctx *gin.Context) {
 //	@Success		200		{object}	dto.Response{data=[]dto.HitokotoResponse}	"请求成功"
 //	@Failure		401		{object}	dto.Response{}								"未授权"
 //	@Failure		500		{object}	dto.Response{}								"数据库错误"
-//	@Router			/api/hitokoto/list [get]
+//	@Router			/hitokoto/list [get]
 func GetHitokotoList(ctx *gin.Context) {
 	request, ok := bindPage(ctx)
 	if !ok {
@@ -153,7 +153,7 @@ func GetHitokotoList(ctx *gin.Context) {
 //	@Failure		401	{object}	dto.Response{}							"未授权"
 //	@Failure		404	{object}	dto.Response{}							"没有找到对应的一言"
 //	@Failure		500	{object}	dto.Response{}							"数据库错误"
-//	@Router			/api/hitokoto/{id} [get]
+//	@Router			/hitokoto/{id} [get]
 func GetHitokotoById(ctx *gin.Context) {
 	request, ok := bindID(ctx)
 	if !ok {
@@ -184,7 +184,7 @@ func GetHitokotoById(ctx *gin.Context) {
 //	@Success		200	{object}	dto.Response{data=dto.HitokotoResponse}	"请求成功"
 //	@Failure		404	{object}	dto.Response{}							"没有找到对应的一言"
 //	@Failure		500	{object}	dto.Response{}							"数据库错误"
-//	@Router			/api/hitokoto [get]
+//	@Router			/hitokoto [get]
 func GetHitokotoRandom(ctx *gin.Context) {
 	hitokoto, err := newService().Random()
 	if err != nil {

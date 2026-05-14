@@ -26,12 +26,12 @@ func New() *gin.Engine {
 		}
 	}
 
-	verifyGroup := r.Group("verify")
+	verifyGroup := api.Group("verify")
 	{
 		verifyGroup.POST("/send", ValidatorHandler.SendVerificationCode)
 	}
 
-	authGroup := r.Group("auth")
+	authGroup := api.Group("auth")
 	{
 		authGroup.POST("/login", UserHandler.LoginTask)
 		authGroup.POST("/refresh", UserHandler.RefreshTask)

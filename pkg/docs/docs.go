@@ -15,436 +15,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/hitokoto": {
-            "get": {
-                "description": "从数据库中随机获取一条一言记录。",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "一言"
-                ],
-                "summary": "随机获取一言",
-                "operationId": "getHitokotoRandom",
-                "responses": {
-                    "200": {
-                        "description": "请求成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/atelino_internal_dto.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/atelino_internal_dto.HitokotoResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "404": {
-                        "description": "没有找到对应的一言",
-                        "schema": {
-                            "$ref": "#/definitions/atelino_internal_dto.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "数据库错误",
-                        "schema": {
-                            "$ref": "#/definitions/atelino_internal_dto.Response"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "创建一条新的一言记录。",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "一言"
-                ],
-                "summary": "添加一言",
-                "operationId": "createHitokoto",
-                "parameters": [
-                    {
-                        "description": "一言内容",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/atelino_internal_dto.CreateHitokotoRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "添加成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/atelino_internal_dto.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/atelino_internal_dto.HitokotoResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "请求参数错误",
-                        "schema": {
-                            "$ref": "#/definitions/atelino_internal_dto.Response"
-                        }
-                    },
-                    "409": {
-                        "description": "该一言已存在",
-                        "schema": {
-                            "$ref": "#/definitions/atelino_internal_dto.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "数据库错误",
-                        "schema": {
-                            "$ref": "#/definitions/atelino_internal_dto.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/hitokoto/list": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "从数据库中查询所有的一言记录。",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "一言"
-                ],
-                "summary": "获取一言列表",
-                "operationId": "getHitokotoList",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "页数",
-                        "name": "page",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "请求成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/atelino_internal_dto.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/atelino_internal_dto.HitokotoResponse"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "401": {
-                        "description": "未授权",
-                        "schema": {
-                            "$ref": "#/definitions/atelino_internal_dto.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "数据库错误",
-                        "schema": {
-                            "$ref": "#/definitions/atelino_internal_dto.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/hitokoto/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "传入一言的 ID，从数据库中查询对应的记录。",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "一言"
-                ],
-                "summary": "获取一言",
-                "operationId": "getHitokotoByID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "一言 ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "请求成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/atelino_internal_dto.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/atelino_internal_dto.HitokotoResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "请求参数错误",
-                        "schema": {
-                            "$ref": "#/definitions/atelino_internal_dto.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "未授权",
-                        "schema": {
-                            "$ref": "#/definitions/atelino_internal_dto.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "没有找到对应的一言",
-                        "schema": {
-                            "$ref": "#/definitions/atelino_internal_dto.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "数据库错误",
-                        "schema": {
-                            "$ref": "#/definitions/atelino_internal_dto.Response"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "传入一言的 ID，从数据库中删除对应的记录。",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "一言"
-                ],
-                "summary": "删除一言",
-                "operationId": "deleteHitokotoByID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "一言 ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "删除成功",
-                        "schema": {
-                            "$ref": "#/definitions/atelino_internal_dto.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "请求参数错误",
-                        "schema": {
-                            "$ref": "#/definitions/atelino_internal_dto.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "未授权",
-                        "schema": {
-                            "$ref": "#/definitions/atelino_internal_dto.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "没有找到对应的一言",
-                        "schema": {
-                            "$ref": "#/definitions/atelino_internal_dto.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "数据库错误",
-                        "schema": {
-                            "$ref": "#/definitions/atelino_internal_dto.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/user/list": {
-            "get": {
-                "description": "分页获取所有用户的列表。",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "用户"
-                ],
-                "summary": "获取用户列表",
-                "operationId": "getUserList",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "页数，默认为1",
-                        "name": "page",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "请求成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/atelino_internal_dto.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/atelino_internal_dto.UserResponse"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "500": {
-                        "description": "数据库错误",
-                        "schema": {
-                            "$ref": "#/definitions/atelino_internal_dto.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/user/{id}": {
-            "get": {
-                "description": "传入用户的 ID，从数据库中查询指定的用户。",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "用户"
-                ],
-                "summary": "获取用户",
-                "operationId": "getUserByID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "用户 ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "请求成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/atelino_internal_dto.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/atelino_internal_dto.UserResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "请求参数错误",
-                        "schema": {
-                            "$ref": "#/definitions/atelino_internal_dto.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "未授权",
-                        "schema": {
-                            "$ref": "#/definitions/atelino_internal_dto.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "查询失败",
-                        "schema": {
-                            "$ref": "#/definitions/atelino_internal_dto.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/auth/login": {
             "post": {
                 "description": "用户登录接口",
@@ -662,6 +232,436 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "注册失败",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/hitokoto": {
+            "get": {
+                "description": "从数据库中随机获取一条一言记录。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "一言"
+                ],
+                "summary": "随机获取一言",
+                "operationId": "getHitokotoRandom",
+                "responses": {
+                    "200": {
+                        "description": "请求成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/atelino_internal_dto.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/atelino_internal_dto.HitokotoResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "没有找到对应的一言",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "数据库错误",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "创建一条新的一言记录。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "一言"
+                ],
+                "summary": "添加一言",
+                "operationId": "createHitokoto",
+                "parameters": [
+                    {
+                        "description": "一言内容",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.CreateHitokotoRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "添加成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/atelino_internal_dto.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/atelino_internal_dto.HitokotoResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "该一言已存在",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "数据库错误",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/hitokoto/list": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "从数据库中查询所有的一言记录。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "一言"
+                ],
+                "summary": "获取一言列表",
+                "operationId": "getHitokotoList",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "页数",
+                        "name": "page",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "请求成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/atelino_internal_dto.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/atelino_internal_dto.HitokotoResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "数据库错误",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/hitokoto/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "传入一言的 ID，从数据库中查询对应的记录。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "一言"
+                ],
+                "summary": "获取一言",
+                "operationId": "getHitokotoByID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "一言 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "请求成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/atelino_internal_dto.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/atelino_internal_dto.HitokotoResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "没有找到对应的一言",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "数据库错误",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "传入一言的 ID，从数据库中删除对应的记录。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "一言"
+                ],
+                "summary": "删除一言",
+                "operationId": "deleteHitokotoByID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "一言 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "没有找到对应的一言",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "数据库错误",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/list": {
+            "get": {
+                "description": "分页获取所有用户的列表。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户"
+                ],
+                "summary": "获取用户列表",
+                "operationId": "getUserList",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "页数，默认为1",
+                        "name": "page",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "请求成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/atelino_internal_dto.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/atelino_internal_dto.UserResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "数据库错误",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/{id}": {
+            "get": {
+                "description": "传入用户的 ID，从数据库中查询指定的用户。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户"
+                ],
+                "summary": "获取用户",
+                "operationId": "getUserByID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "请求成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/atelino_internal_dto.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/atelino_internal_dto.UserResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/atelino_internal_dto.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "查询失败",
                         "schema": {
                             "$ref": "#/definitions/atelino_internal_dto.Response"
                         }
@@ -921,9 +921,9 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.1.1",
+	Version:          "1.1.2",
 	Host:             "localhost:8080",
-	BasePath:         "/",
+	BasePath:         "/api/",
 	Schemes:          []string{"http", "https"},
 	Title:            "Atelino API",
 	Description:      "Atelino 后端 API 文档",

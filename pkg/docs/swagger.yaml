@@ -1,4 +1,4 @@
-basePath: /
+basePath: /api/
 definitions:
   atelino_internal_dto.CreateHitokotoRequest:
     properties:
@@ -143,271 +143,8 @@ info:
   contact: {}
   description: Atelino 后端 API 文档
   title: Atelino API
-  version: 1.1.1
+  version: 1.1.2
 paths:
-  /api/hitokoto:
-    get:
-      consumes:
-      - application/json
-      description: 从数据库中随机获取一条一言记录。
-      operationId: getHitokotoRandom
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 请求成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/atelino_internal_dto.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/atelino_internal_dto.HitokotoResponse'
-              type: object
-        "404":
-          description: 没有找到对应的一言
-          schema:
-            $ref: '#/definitions/atelino_internal_dto.Response'
-        "500":
-          description: 数据库错误
-          schema:
-            $ref: '#/definitions/atelino_internal_dto.Response'
-      summary: 随机获取一言
-      tags:
-      - 一言
-    post:
-      consumes:
-      - application/json
-      description: 创建一条新的一言记录。
-      operationId: createHitokoto
-      parameters:
-      - description: 一言内容
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/atelino_internal_dto.CreateHitokotoRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 添加成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/atelino_internal_dto.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/atelino_internal_dto.HitokotoResponse'
-              type: object
-        "400":
-          description: 请求参数错误
-          schema:
-            $ref: '#/definitions/atelino_internal_dto.Response'
-        "409":
-          description: 该一言已存在
-          schema:
-            $ref: '#/definitions/atelino_internal_dto.Response'
-        "500":
-          description: 数据库错误
-          schema:
-            $ref: '#/definitions/atelino_internal_dto.Response'
-      security:
-      - BearerAuth: []
-      summary: 添加一言
-      tags:
-      - 一言
-  /api/hitokoto/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: 传入一言的 ID，从数据库中删除对应的记录。
-      operationId: deleteHitokotoByID
-      parameters:
-      - description: 一言 ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 删除成功
-          schema:
-            $ref: '#/definitions/atelino_internal_dto.Response'
-        "400":
-          description: 请求参数错误
-          schema:
-            $ref: '#/definitions/atelino_internal_dto.Response'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/atelino_internal_dto.Response'
-        "404":
-          description: 没有找到对应的一言
-          schema:
-            $ref: '#/definitions/atelino_internal_dto.Response'
-        "500":
-          description: 数据库错误
-          schema:
-            $ref: '#/definitions/atelino_internal_dto.Response'
-      security:
-      - BearerAuth: []
-      summary: 删除一言
-      tags:
-      - 一言
-    get:
-      consumes:
-      - application/json
-      description: 传入一言的 ID，从数据库中查询对应的记录。
-      operationId: getHitokotoByID
-      parameters:
-      - description: 一言 ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 请求成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/atelino_internal_dto.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/atelino_internal_dto.HitokotoResponse'
-              type: object
-        "400":
-          description: 请求参数错误
-          schema:
-            $ref: '#/definitions/atelino_internal_dto.Response'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/atelino_internal_dto.Response'
-        "404":
-          description: 没有找到对应的一言
-          schema:
-            $ref: '#/definitions/atelino_internal_dto.Response'
-        "500":
-          description: 数据库错误
-          schema:
-            $ref: '#/definitions/atelino_internal_dto.Response'
-      security:
-      - BearerAuth: []
-      summary: 获取一言
-      tags:
-      - 一言
-  /api/hitokoto/list:
-    get:
-      consumes:
-      - application/json
-      description: 从数据库中查询所有的一言记录。
-      operationId: getHitokotoList
-      parameters:
-      - description: 页数
-        in: query
-        name: page
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 请求成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/atelino_internal_dto.Response'
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/atelino_internal_dto.HitokotoResponse'
-                  type: array
-              type: object
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/atelino_internal_dto.Response'
-        "500":
-          description: 数据库错误
-          schema:
-            $ref: '#/definitions/atelino_internal_dto.Response'
-      security:
-      - BearerAuth: []
-      summary: 获取一言列表
-      tags:
-      - 一言
-  /api/user/{id}:
-    get:
-      consumes:
-      - application/json
-      description: 传入用户的 ID，从数据库中查询指定的用户。
-      operationId: getUserByID
-      parameters:
-      - description: 用户 ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 请求成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/atelino_internal_dto.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/atelino_internal_dto.UserResponse'
-              type: object
-        "400":
-          description: 请求参数错误
-          schema:
-            $ref: '#/definitions/atelino_internal_dto.Response'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/atelino_internal_dto.Response'
-        "500":
-          description: 查询失败
-          schema:
-            $ref: '#/definitions/atelino_internal_dto.Response'
-      summary: 获取用户
-      tags:
-      - 用户
-  /api/user/list:
-    get:
-      consumes:
-      - application/json
-      description: 分页获取所有用户的列表。
-      operationId: getUserList
-      parameters:
-      - description: 页数，默认为1
-        in: query
-        name: page
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 请求成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/atelino_internal_dto.Response'
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/atelino_internal_dto.UserResponse'
-                  type: array
-              type: object
-        "500":
-          description: 数据库错误
-          schema:
-            $ref: '#/definitions/atelino_internal_dto.Response'
-      summary: 获取用户列表
-      tags:
-      - 用户
   /auth/login:
     post:
       consumes:
@@ -547,6 +284,269 @@ paths:
           schema:
             $ref: '#/definitions/atelino_internal_dto.Response'
       summary: 用户注册
+      tags:
+      - 用户
+  /hitokoto:
+    get:
+      consumes:
+      - application/json
+      description: 从数据库中随机获取一条一言记录。
+      operationId: getHitokotoRandom
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 请求成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/atelino_internal_dto.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/atelino_internal_dto.HitokotoResponse'
+              type: object
+        "404":
+          description: 没有找到对应的一言
+          schema:
+            $ref: '#/definitions/atelino_internal_dto.Response'
+        "500":
+          description: 数据库错误
+          schema:
+            $ref: '#/definitions/atelino_internal_dto.Response'
+      summary: 随机获取一言
+      tags:
+      - 一言
+    post:
+      consumes:
+      - application/json
+      description: 创建一条新的一言记录。
+      operationId: createHitokoto
+      parameters:
+      - description: 一言内容
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/atelino_internal_dto.CreateHitokotoRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 添加成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/atelino_internal_dto.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/atelino_internal_dto.HitokotoResponse'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/atelino_internal_dto.Response'
+        "409":
+          description: 该一言已存在
+          schema:
+            $ref: '#/definitions/atelino_internal_dto.Response'
+        "500":
+          description: 数据库错误
+          schema:
+            $ref: '#/definitions/atelino_internal_dto.Response'
+      security:
+      - BearerAuth: []
+      summary: 添加一言
+      tags:
+      - 一言
+  /hitokoto/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 传入一言的 ID，从数据库中删除对应的记录。
+      operationId: deleteHitokotoByID
+      parameters:
+      - description: 一言 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/atelino_internal_dto.Response'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/atelino_internal_dto.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/atelino_internal_dto.Response'
+        "404":
+          description: 没有找到对应的一言
+          schema:
+            $ref: '#/definitions/atelino_internal_dto.Response'
+        "500":
+          description: 数据库错误
+          schema:
+            $ref: '#/definitions/atelino_internal_dto.Response'
+      security:
+      - BearerAuth: []
+      summary: 删除一言
+      tags:
+      - 一言
+    get:
+      consumes:
+      - application/json
+      description: 传入一言的 ID，从数据库中查询对应的记录。
+      operationId: getHitokotoByID
+      parameters:
+      - description: 一言 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 请求成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/atelino_internal_dto.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/atelino_internal_dto.HitokotoResponse'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/atelino_internal_dto.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/atelino_internal_dto.Response'
+        "404":
+          description: 没有找到对应的一言
+          schema:
+            $ref: '#/definitions/atelino_internal_dto.Response'
+        "500":
+          description: 数据库错误
+          schema:
+            $ref: '#/definitions/atelino_internal_dto.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取一言
+      tags:
+      - 一言
+  /hitokoto/list:
+    get:
+      consumes:
+      - application/json
+      description: 从数据库中查询所有的一言记录。
+      operationId: getHitokotoList
+      parameters:
+      - description: 页数
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 请求成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/atelino_internal_dto.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/atelino_internal_dto.HitokotoResponse'
+                  type: array
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/atelino_internal_dto.Response'
+        "500":
+          description: 数据库错误
+          schema:
+            $ref: '#/definitions/atelino_internal_dto.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取一言列表
+      tags:
+      - 一言
+  /user/{id}:
+    get:
+      consumes:
+      - application/json
+      description: 传入用户的 ID，从数据库中查询指定的用户。
+      operationId: getUserByID
+      parameters:
+      - description: 用户 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 请求成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/atelino_internal_dto.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/atelino_internal_dto.UserResponse'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/atelino_internal_dto.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/atelino_internal_dto.Response'
+        "500":
+          description: 查询失败
+          schema:
+            $ref: '#/definitions/atelino_internal_dto.Response'
+      summary: 获取用户
+      tags:
+      - 用户
+  /user/list:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取所有用户的列表。
+      operationId: getUserList
+      parameters:
+      - description: 页数，默认为1
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 请求成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/atelino_internal_dto.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/atelino_internal_dto.UserResponse'
+                  type: array
+              type: object
+        "500":
+          description: 数据库错误
+          schema:
+            $ref: '#/definitions/atelino_internal_dto.Response'
+      summary: 获取用户列表
       tags:
       - 用户
   /verify/send:
