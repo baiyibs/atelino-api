@@ -158,9 +158,9 @@ func GetUserByID(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@ID				getUserList
-//	@Param			page	query		int										false	"页数，默认为1"
-//	@Success		200		{object}	dto.Response{data=[]dto.UserResponse}	"请求成功"
-//	@Failure		500		{object}	dto.Response{}							"数据库错误"
+//	@Param			page	query		int													false	"页数，默认为1"
+//	@Success		200		{object}	dto.Response{data=dto.PaginatedResponse{list=[]dto.UserResponse}}	"请求成功"
+//	@Failure		500		{object}	dto.Response{}											"数据库错误"
 //	@Router			/user/list [get]
 func GetUserList(ctx *gin.Context) {
 	request, ok := bindPage(ctx)
@@ -169,14 +169,17 @@ func GetUserList(ctx *gin.Context) {
 	}
 
 	const pageSize = 20
-	list, _, err := newService().List(request, pageSize)
+	list, total, err := newService().List(request, pageSize)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dto.Response{Code: 500, Message: "数据库错误"})
 		log.Printf("获取用户列表失败: %v", err)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, dto.Response{Code: 200, Message: "请求成功", Data: list})
+	ctx.JSON(http.StatusOK, dto.Response{Code: 200, Message: "请求成功", Data: dto.PaginatedResponse{
+		List:  list,
+		Total: total,
+	}})
 }
 
 // RefreshTask 刷新令牌

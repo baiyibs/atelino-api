@@ -12,7 +12,21 @@ import (
 
 func New() *gin.Engine {
 	r := gin.Default()
-	r.Use(cors.Default())
+	r.Use(gin.LoggerWithConfig(gin.LoggerConfig{
+		SkipQueryString: true,
+	}))
+	// 测试用
+	r.Use(
+		cors.New(
+			cors.Config{
+				AllowOrigins:     []string{"*"},
+				AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+				AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+				ExposeHeaders:    []string{"Content-Length"},
+				AllowCredentials: false,
+			},
+		),
+	)
 
 	api := r.Group("api")
 	{

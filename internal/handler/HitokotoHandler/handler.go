@@ -116,10 +116,10 @@ func DeleteHitokotoById(ctx *gin.Context) {
 //	@Produce		json
 //	@ID				getHitokotoList
 //	@Security		BearerAuth
-//	@Param			page	query		int											false	"页数"
-//	@Success		200		{object}	dto.Response{data=[]dto.HitokotoResponse}	"请求成功"
-//	@Failure		401		{object}	dto.Response{}								"未授权"
-//	@Failure		500		{object}	dto.Response{}								"数据库错误"
+//	@Param			page	query		int														false	"页数"
+//	@Success		200		{object}	dto.Response{data=dto.PaginatedResponse{list=[]dto.HitokotoResponse}}	"请求成功"
+//	@Failure		401		{object}	dto.Response{}												"未授权"
+//	@Failure		500		{object}	dto.Response{}												"数据库错误"
 //	@Router			/hitokoto/list [get]
 func GetHitokotoList(ctx *gin.Context) {
 	request, ok := bindPage(ctx)
@@ -128,14 +128,17 @@ func GetHitokotoList(ctx *gin.Context) {
 	}
 
 	const pageSize = 20
-	list, _, err := newService().List(request, pageSize)
+	list, total, err := newService().List(request, pageSize)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dto.Response{Code: 500, Message: "数据库错误"})
 		log.Printf("获取一言列表失败: %v", err)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, dto.Response{Code: 200, Message: "请求成功", Data: list})
+	ctx.JSON(http.StatusOK, dto.Response{Code: 200, Message: "请求成功", Data: dto.PaginatedResponse{
+		List:  list,
+		Total: total,
+	}})
 }
 
 // GetHitokotoById 根据 ID 获取一条一言记录。
