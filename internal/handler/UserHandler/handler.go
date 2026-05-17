@@ -158,9 +158,9 @@ func GetUserByID(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@ID				getUserList
-//	@Param			page	query		int													false	"页数，默认为1"
+//	@Param			page	query		int																	false	"页数，默认为1"
 //	@Success		200		{object}	dto.Response{data=dto.PaginatedResponse{list=[]dto.UserResponse}}	"请求成功"
-//	@Failure		500		{object}	dto.Response{}											"数据库错误"
+//	@Failure		500		{object}	dto.Response{}														"数据库错误"
 //	@Router			/user/list [get]
 func GetUserList(ctx *gin.Context) {
 	request, ok := bindPage(ctx)

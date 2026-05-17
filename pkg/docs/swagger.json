@@ -8,7 +8,7 @@
         "description": "Atelino 后端 API 文档",
         "title": "Atelino API",
         "contact": {},
-        "version": "1.1.2"
+        "version": "1.1.3"
     },
     "host": "localhost:8080",
     "basePath": "/api/",
@@ -392,10 +392,22 @@
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/atelino_internal_dto.HitokotoResponse"
-                                            }
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/atelino_internal_dto.PaginatedResponse"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/atelino_internal_dto.HitokotoResponse"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
                                         }
                                     }
                                 }
@@ -585,10 +597,22 @@
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/atelino_internal_dto.UserResponse"
-                                            }
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/atelino_internal_dto.PaginatedResponse"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/atelino_internal_dto.UserResponse"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
                                         }
                                     }
                                 }
@@ -772,6 +796,18 @@
                     "description": "密码",
                     "type": "string",
                     "example": "password123"
+                }
+            }
+        },
+        "atelino_internal_dto.PaginatedResponse": {
+            "type": "object",
+            "properties": {
+                "list": {
+                    "description": "列表数据"
+                },
+                "total": {
+                    "description": "总记录数",
+                    "type": "integer"
                 }
             }
         },

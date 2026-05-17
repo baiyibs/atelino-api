@@ -39,6 +39,14 @@ definitions:
     - email
     - password
     type: object
+  atelino_internal_dto.PaginatedResponse:
+    properties:
+      list:
+        description: 列表数据
+      total:
+        description: 总记录数
+        type: integer
+    type: object
   atelino_internal_dto.RefreshTokenRequest:
     properties:
       refresh_token:
@@ -143,7 +151,7 @@ info:
   contact: {}
   description: Atelino 后端 API 文档
   title: Atelino API
-  version: 1.1.2
+  version: 1.1.3
 paths:
   /auth/login:
     post:
@@ -461,9 +469,14 @@ paths:
             - $ref: '#/definitions/atelino_internal_dto.Response'
             - properties:
                 data:
-                  items:
-                    $ref: '#/definitions/atelino_internal_dto.HitokotoResponse'
-                  type: array
+                  allOf:
+                  - $ref: '#/definitions/atelino_internal_dto.PaginatedResponse'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/atelino_internal_dto.HitokotoResponse'
+                        type: array
+                    type: object
               type: object
         "401":
           description: 未授权
@@ -538,9 +551,14 @@ paths:
             - $ref: '#/definitions/atelino_internal_dto.Response'
             - properties:
                 data:
-                  items:
-                    $ref: '#/definitions/atelino_internal_dto.UserResponse'
-                  type: array
+                  allOf:
+                  - $ref: '#/definitions/atelino_internal_dto.PaginatedResponse'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/atelino_internal_dto.UserResponse'
+                        type: array
+                    type: object
               type: object
         "500":
           description: 数据库错误

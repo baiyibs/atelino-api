@@ -394,10 +394,22 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/atelino_internal_dto.HitokotoResponse"
-                                            }
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/atelino_internal_dto.PaginatedResponse"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/atelino_internal_dto.HitokotoResponse"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
                                         }
                                     }
                                 }
@@ -587,10 +599,22 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/atelino_internal_dto.UserResponse"
-                                            }
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/atelino_internal_dto.PaginatedResponse"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/atelino_internal_dto.UserResponse"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
                                         }
                                     }
                                 }
@@ -777,6 +801,18 @@ const docTemplate = `{
                 }
             }
         },
+        "atelino_internal_dto.PaginatedResponse": {
+            "type": "object",
+            "properties": {
+                "list": {
+                    "description": "列表数据"
+                },
+                "total": {
+                    "description": "总记录数",
+                    "type": "integer"
+                }
+            }
+        },
         "atelino_internal_dto.RefreshTokenRequest": {
             "type": "object",
             "required": [
@@ -921,7 +957,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.1.2",
+	Version:          "1.1.3",
 	Host:             "localhost:8080",
 	BasePath:         "/api/",
 	Schemes:          []string{"http", "https"},

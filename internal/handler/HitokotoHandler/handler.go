@@ -116,10 +116,10 @@ func DeleteHitokotoById(ctx *gin.Context) {
 //	@Produce		json
 //	@ID				getHitokotoList
 //	@Security		BearerAuth
-//	@Param			page	query		int														false	"页数"
+//	@Param			page	query		int																		false	"页数"
 //	@Success		200		{object}	dto.Response{data=dto.PaginatedResponse{list=[]dto.HitokotoResponse}}	"请求成功"
-//	@Failure		401		{object}	dto.Response{}												"未授权"
-//	@Failure		500		{object}	dto.Response{}												"数据库错误"
+//	@Failure		401		{object}	dto.Response{}															"未授权"
+//	@Failure		500		{object}	dto.Response{}															"数据库错误"
 //	@Router			/hitokoto/list [get]
 func GetHitokotoList(ctx *gin.Context) {
 	request, ok := bindPage(ctx)
